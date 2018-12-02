@@ -176,8 +176,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.test_detection) {
-            Intent intent = new Intent(getApplicationContext(), FallDetectedActivity.class);
-            startActivity(intent);
+            Log.e("Fall detected", "Fall detected");
+            Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(dialogIntent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("fall_detected"));
             return true;
         }
 

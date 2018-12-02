@@ -5,6 +5,10 @@ public class RotationVectorData extends Data {
         super(values, timestamp);
     }
 
+    public RotationVectorData(float x, float y, float z, float cos, float accuracy, long timestamp) {
+        super(new float[]{x, y, z, cos, accuracy}, timestamp);
+    }
+
     /**
      * @return x*sin(θ/2)
      */
