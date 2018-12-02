@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context=".FallDetectedActivity">
+
+
+    <RelativeLayout
+        android:id="@+id/timer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cpb_background_progressbar_color="@android:color/transparent"
+            app:cpb_background_progressbar_width="7dp"
+            app:cpb_progress="100"
+            app:cpb_progress_max="100"
+            app:cpb_progressbar_color="@android:color/white"
+            app:cpb_progressbar_width="15dp" />
+
+        <TextView
+            android:id="@+id/tv_time_remaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:textColor="@android:color/white"
+            android:textSize="50sp"
+            android:typeface="monospace" />
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/tv_alarm_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/timer_layout"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/product_sans_bold"
+        android:gravity="center_horizontal"
+        android:text="@string/fall_detected"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/timer_layout"
+        android:layout_margin="16dp"
+        android:background="@drawable/button_cancel_background"
+        android:fontFamily="@font/product_sans_regular"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:text="@string/tap_to_cancel"
+        android:textColor="@android:color/white"
+        android:theme="@style/SecondaryAppTheme.WhiteRipple" />
+
+
+    <RelativeLayout
+        android:id="@+id/communicate_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/timer_layout"
+        android:layout_margin="16dp"
+        android:visibility="gone">
+
+        <TextSwitcher
+            android:id="@+id/ts_communicate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:inAnimation="@android:anim/fade_in"
+            android:outAnimation="@android:anim/fade_out">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/product_sans_regular"
+                android:gravity="start"
+                android:textColor="@android:color/white"
+                android:textSize="25sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/product_sans_regular"
+                android:gravity="start"
+                android:textColor="@android:color/white"
+                android:textSize="25sp" />
+
+
+        </TextSwitcher>
+
+
+        <ProgressBar
+            android:id="@+id/progress_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true" />
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

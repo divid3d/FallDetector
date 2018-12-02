@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="User">
+        <EditTextPreference
+            android:key="key_username"
+            android:summary="Username"
+            android:title="Enter your name" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="SMS request">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="sms_request_enable"
+            android:summary="Click to enable sending help request by SMS"
+            android:title="SMS request" />
+
+        <EditTextPreference
+            android:dependency="sms_request_enable"
+            android:inputType="phone"
+            android:key="key_phone_number"
+            android:summary="Enter phone number that will be send SMS with help request"
+            android:title="Phone number" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="E-mail request">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="email_request_enable"
+            android:summary="Click to enable sending help request by e-mail"
+            android:title="E-mail request" />
+
+        <EditTextPreference
+            android:dependency="email_request_enable"
+            android:inputType="textEmailAddress"
+            android:key="key_email_address"
+            android:summary="Enter address that will be send e-mail with help request"
+            android:title="E-mail address" />
+
+        <EditTextPreference
+            android:dependency="email_request_enable"
+            android:inputType="textEmailAddress"
+            android:key="key_email_login"
+            android:summary="Enter gmail login"
+            android:title="E-mail login" />
+
+        <EditTextPreference
+            android:dependency="email_request_enable"
+            android:inputType="textPassword"
+            android:key="key_email_password"
+            android:summary="Enter gmail password"
+            android:title="E-mail password" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="General">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="alarm_vibration_enable"
+            android:summary="Click to enable vibration while alarm"
+            android:title="Vibration" />
+
+
+        <com.example.divided.falldetector.NumberPickerPreference
+            android:defaultValue="15"
+            android:key="alarm_time"
+            android:summary="Set alarm duration in seconds"
+            android:title="Alarm duration" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Sound">
+        <SwitchPreference
+
+            android:key="alarm_sound_enabled"
+            android:summary="Click to enable sound alarm"
+            android:title="Alarm sound enable" />
+
+
+        <RingtonePreference
+            android:dependency="alarm_sound_enabled"
+            android:key="alarm_sound"
+            android:summary="Click to chose alarm sound"
+            android:title="Alarm sound" />
+    </PreferenceCategory>
+    <!--
+
+        <RingtonePreference
+            android:defaultValue="content://settings/system/notification_sound"
+            android:dependency="notifications_new_message"
+            android:key="@string/key_notifications_new_message_ringtone"
+            android:ringtoneType="notification"
+            android:summary="@string/summary_choose_ringtone"
+            android:title="@string/pref_title_ringtone" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_vibrate"
+            android:summary="@string/summary_vibrate"
+            android:title="@string/title_vibrate" />
+
+
+    <PreferenceCategory android:title="@string/pref_header_about">
+
+        <Preference
+            android:selectable="false"
+            android:summary="@string/summary_about" />
+
+        <Preference
+            android:summary="@string/app_version"
+            android:title="@string/title_version" />
+
+        <Preference
+            android:key="@string/key_send_feedback"
+            android:summary="@string/summary_support"
+            android:title="@string/title_send_feedback" />
+
+
+        <Preference
+            android:summary="@string/summary_faq"
+            android:title="@string/title_faq">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_faq" />
+        </Preference>
+
+        <Preference android:title="@string/privacy_policy">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_privacy" />
+        </Preference>
+
+        <Preference android:title="@string/title_terms">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_terms" />
+        </Preference>
+    </PreferenceCategory>
+-->
+</PreferenceScreen>
