@@ -28,28 +28,28 @@ public class Algorithm {
                 + String.format("%.5f",(float) Iterables.getLast(gyroscopeData).getTimestamp()) + "\t"
                 + String.format("%.5f",(float) Iterables.getLast(magneticFieldData).getTimestamp()) + "\t"
                 + String.format("%.5f",(float) Iterables.getLast(rotationVectorData).getTimestamp()));*/
-        float[] degs = new float[3];
+        float[] degrees = new float[3];
         float[] rotationMatrix = new float[9];
-        double tetaY;
-        double tetaZ;
+        double thetaY;
+        double thetaZ;
 
 
         for (int i = 0; i < sensorDataPack.getPackSize(); i++) {
             SensorManager.getRotationMatrix(rotationMatrix, null,sensorDataPack.getRotationVectorData().get(i).getValues(), sensorDataPack.getMagneticFieldData().get(i).getValues());
-            SensorManager.getOrientation(rotationMatrix, degs);
-            tetaY = degs[2];
-            tetaZ = degs[0];
+            SensorManager.getOrientation(rotationMatrix, degrees);
+            thetaY = degrees[2];
+            thetaZ = degrees[0];
 
 
-            final double verticalAcceleration = calculateAccelerationNormal(sensorDataPack.getLinearAccelerationData().get(i).getX(), sensorDataPack.getLinearAccelerationData().get(i).getY(), sensorDataPack.getLinearAccelerationData().get(i).getZ(), tetaY, tetaZ);
+            final double verticalAcceleration = calculateAccelerationNormal(sensorDataPack.getLinearAccelerationData().get(i).getX(), sensorDataPack.getLinearAccelerationData().get(i).getY(), sensorDataPack.getLinearAccelerationData().get(i).getZ(), thetaY, thetaZ);
             final double totalAcceleration = sensorDataPack.getLinearAccelerationData().get(i).getModule();
 
-            final double accelerationRation = verticalAcceleration / totalAcceleration;
-            final float accelerationPercentage = (float) accelerationRation * 100f;
+            final double accelerationRatio = calculateAccelerationRatio(verticalAcceleration,totalAcceleration);
+            final float accelerationPercentage = (float) accelerationRatio * 100f;
 
             Log.e("ALOGRITHM PROCESS", "Iteration:\t" + String.valueOf(i) + "\t" + String.format("aV:\t%.5f\t", verticalAcceleration)
                     + String.format("aT:\t%.5f\t", totalAcceleration)
-                    + String.format("Ratio:\t%.3f\t", accelerationRation)
+                    + String.format("Ratio:\t%.3f\t", accelerationRatio)
                     + String.format("Percentage:\t%.2f", accelerationPercentage));
 
             /*Log.e("Differances","Acc - Gyro"+String.format("%f ms",(sensorDataPack.getLinearAccelerationData().get(i).getTimestamp() - sensorDataPack.getGyroscopeData().get(i).getTimestamp())/1000000.0f)+"\n"
@@ -57,7 +57,7 @@ public class Algorithm {
             +"Acc - Rot"+String.format("%f ms",(sensorDataPack.getLinearAccelerationData().get(i).getTimestamp() - sensorDataPack.getRotationVectorData().get(i).getTimestamp())/1000000.0f)+"\n");
 */
             if (totalAcceleration >= TOTAL_ACC_THRESHOLD && verticalAcceleration >= VERTICAL_ACC_THRESHOLD) {
-                if (accelerationRation >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRation <= ACC_COMPARISION_THRESHOLD_HIGH) {
+                if (accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRatio <= ACC_COMPARISION_THRESHOLD_HIGH) {
                     return true;
                 }
             }
@@ -67,6 +67,10 @@ public class Algorithm {
 
     private static double calculateAccelerationNormal(double aX, double aY, double aZ, double thetaY, double thetaZ) {
         return Math.abs(aX * Math.sin(thetaZ) + aY * Math.sin(thetaY) - aZ * Math.cos(thetaY) * Math.cos(thetaZ));
+    }
+
+    private static double calculateAccelerationRatio(double verticalAcceleration, double totalAcceleration ){
+        return verticalAcceleration/totalAcceleration;
     }
 
 

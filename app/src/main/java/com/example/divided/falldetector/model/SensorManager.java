@@ -26,7 +26,6 @@ public class SensorManager implements SensorEventListener {
         mContext = context;
         mSaplingMillis = samplingMillis;
         mSensorManager = (android.hardware.SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        mSaplingMillis = samplingMillis;
     }
 
 

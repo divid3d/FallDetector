@@ -46,7 +46,7 @@ public class ChartUtils {
         set.setDrawCircles(false);
         set.setDrawValues(false);
         set.setDrawFilled(true);
-        set.setFillAlpha(70);
+        set.setFillAlpha(32);
         set.setFillColor(color);
 
         return set;
