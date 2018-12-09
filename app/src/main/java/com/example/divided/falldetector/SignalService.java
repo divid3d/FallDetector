@@ -16,12 +16,10 @@ import android.util.Log;
 import android.widget.Toast;
 import com.example.divided.falldetector.model.SensorData;
 import com.example.divided.falldetector.model.SensorDataPack;
-import com.google.common.collect.Iterables;
 
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
-import java.util.Queue;
 
 
 public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener{
@@ -59,6 +57,7 @@ public class SignalService extends Service implements com.example.divided.fallde
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i("SignalService","onDestroy()");
         if (sensorManager != null) {
             sensorManager.unregisterListeners();
         }
@@ -68,17 +67,14 @@ public class SignalService extends Service implements com.example.divided.fallde
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("SignalService","onStartCommand()");
         Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
-
-
-
-
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         showNotification();
 
         sensorManager = new com.example.divided.falldetector.model.SensorManager(this,SAMPLING_PERIOD);
-        sensorManager.registerListeners();
         sensorManager.setOnSensorDataListener(this);
+        sensorManager.registerListeners();
 
 
         setNotification();
@@ -94,7 +90,7 @@ public class SignalService extends Service implements com.example.divided.fallde
 
 
     private void startAlarmActivity() {
-        Log.e("Fall detected", "Fall detected");
+        Log.e("SignalService", "Fall detected");
         Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(dialogIntent);

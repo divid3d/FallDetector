@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("MainActivity","onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i("MainActivity","onDestroy()");
         if (SignalService.isServiceRunning(this, SignalService.class)) {
             stopSamplingService();
         }

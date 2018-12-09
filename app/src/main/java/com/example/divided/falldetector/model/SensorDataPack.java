@@ -3,8 +3,6 @@ package com.example.divided.falldetector.model;
 
 import android.util.Log;
 
-import com.google.common.collect.Iterables;
-
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
@@ -100,25 +98,25 @@ public class SensorDataPack {
         packSize = Math.min(Math.min(accelerationDataSize,gyroscopeDataSize),Math.min(magneticFieldDataSize,rotationVectorDataSize));
 
 
-        if (accelerationDataSize - packSize != 0) {
+        if (accelerationDataSize - packSize > 0) {
             for (int i = 0; i < accelerationDataSize - packSize; i++) {
                 linearAccelerationData.remove(i);
             }
         }
 
-        if (gyroscopeDataSize - packSize != 0) {
+        if (gyroscopeDataSize - packSize> 0) {
             for (int i = 0; i < gyroscopeDataSize - packSize; i++) {
                 gyroscopeData.remove(i);
             }
         }
 
-        if (magneticFieldDataSize - packSize != 0) {
+        if (magneticFieldDataSize - packSize > 0) {
             for (int i = 0; i < magneticFieldDataSize - packSize; i++) {
                 magneticFieldData.remove(i);
             }
         }
 
-        if (rotationVectorDataSize - packSize != 0) {
+        if (rotationVectorDataSize - packSize > 0) {
             for (int i = 0; i < rotationVectorDataSize - packSize; i++) {
                 rotationVectorData.remove(i);
             }
