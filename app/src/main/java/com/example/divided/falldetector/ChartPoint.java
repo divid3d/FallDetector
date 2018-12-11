@@ -4,7 +4,7 @@ public class ChartPoint {
     private float Value;
     private float timeStamp;
 
-    public ChartPoint(float Value, float timeStamp){
+    ChartPoint(float Value, float timeStamp) {
         this.Value = Value;
         this.timeStamp = timeStamp;
     }
@@ -17,7 +17,7 @@ public class ChartPoint {
         return timeStamp;
     }
 
-    public void setTimeStamp(float timeStamp){
+    public void setTimeStamp(float timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

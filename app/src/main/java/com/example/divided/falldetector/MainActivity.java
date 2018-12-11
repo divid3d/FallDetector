@@ -2,7 +2,6 @@ package com.example.divided.falldetector;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,15 +45,14 @@ public class MainActivity extends AppCompatActivity {
             final float modVal = (float) intent.getDoubleExtra("key", 0);
             final float timestamp = (float) intent.getDoubleExtra("timestamp", 0);
             ChartPoint chartPoint = new ChartPoint(modVal, timestamp);
-            ChartUtils.addEntry(chartPoint, chart, "", Color.WHITE);
+            ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
         }
     };
 
-    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i("MainActivity","onCreate()");
         super.onCreate(savedInstanceState);
+        Log.i("MainActivity", "onCreate()");
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.tool_bar);
@@ -78,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         mStartStopServiceButton.setOnClickListener(v -> {
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopSamplingService();
-
             } else {
                 startSamplingService();
             }
@@ -99,12 +96,30 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("intentKey"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mFallDetected, new IntentFilter("fall_detected"));
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("MainActivity", "onPause()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("MainActivity", "onResume()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("MainActivity", "onStop()");
     }
 
     private void startSamplingService() {
-        startService(new Intent(this, SignalService.class));
-        mStartStopServiceButton.setText(R.string.tap_to_stop);
+        Intent intent = new Intent(this, SignalService.class);
+        startService(intent);
+        mStartStopServiceButton.setText(R.string.stop_detection);
         Animation chartInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         chartInAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -127,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopSamplingService() {
         stopService(new Intent(this, SignalService.class));
-        mStartStopServiceButton.setText(R.string.tap_to_start);
+        mStartStopServiceButton.setText(R.string.start_detection);
         Animation chartOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
         chartOutAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -152,11 +167,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i("MainActivity","onDestroy()");
-        if (SignalService.isServiceRunning(this, SignalService.class)) {
-            stopSamplingService();
+        Log.i("MainActivity", "onDestroy()");
+        if (isFinishing()) {
+            if (SignalService.isServiceRunning(this, SignalService.class)) {
+                stopSamplingService();
+            }
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

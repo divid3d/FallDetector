@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.divided.falldetector.model.SensorDataPack;
 
+
 public class Algorithm {
 
     private static final double TOTAL_ACC_THRESHOLD = 1.5;
@@ -16,9 +17,12 @@ public class Algorithm {
     private static final double VERTICAL_ACC_THRESHOLD_LYING = 0.2;
     private static final double TOTAL_ACC_THRESHOLD_LYING = 0.3;
     private final static int LYING_SAMPLES_COUNT = 25;
+    private final static int MAX_SAMPLES_AFTER_PEAK_DETECT = 50;
     private static boolean isFallPeakDetected = false;
     private static boolean isLyingDetected = false;
     private static int currentLyingSamples = 0;
+    private static int samplesAfterPeakDetect = 0;
+
 
     public static boolean fallDetectionAlgorithm(SensorDataPack sensorDataPack) {
 
@@ -33,12 +37,16 @@ public class Algorithm {
         double thetaY;
         double thetaZ;
 
+        /*long startTime = System.nanoTime();*/
 
         for (int i = 0; i < sensorDataPack.getPackSize(); i++) {
             SensorManager.getRotationMatrix(rotationMatrix, null, sensorDataPack.getRotationVectorData().get(i).getValues(), sensorDataPack.getMagneticFieldData().get(i).getValues());
             SensorManager.getOrientation(rotationMatrix, degrees);
             thetaY = degrees[2];
             thetaZ = degrees[0];
+
+            /*Log.e("Theta Y", String.valueOf(thetaY*(180/Math.PI))); // debug angle in degrees
+            Log.e("Theta Z", String.valueOf(thetaZ*(180/Math.PI)));*/
 
 
             final double verticalAcceleration = calculateAccelerationNormal(sensorDataPack.getLinearAccelerationData().get(i).getX(), sensorDataPack.getLinearAccelerationData().get(i).getY(), sensorDataPack.getLinearAccelerationData().get(i).getZ(), thetaY, thetaZ);
@@ -60,23 +68,30 @@ public class Algorithm {
 
             if (detectPeak(totalAcceleration, verticalAcceleration, accelerationRatio)) {
                 currentLyingSamples = 0;
+                samplesAfterPeakDetect = 0;
                 isLyingDetected = false;
                 isFallPeakDetected = true;
             }
             if (detectLying(totalAcceleration, verticalAcceleration)) {
                 currentLyingSamples++;
-                if (currentLyingSamples >= LYING_SAMPLES_COUNT) {
+                if (currentLyingSamples > LYING_SAMPLES_COUNT) {
                     isLyingDetected = true;
                     currentLyingSamples = 0;
                 }
             } else {
                 currentLyingSamples = 0;
+                isLyingDetected = false;
             }
 
-            Log.e("Algorithm", "isFallDetected:\t" + String.valueOf(isFallPeakDetected));
-            Log.e("Algorithm", "isLyingDetected:\t" + String.valueOf(isLyingDetected));
-            Log.e("Algorithm", "currentLyingSamples:\t" + String.valueOf(currentLyingSamples));
+            if (isFallPeakDetected) {
+                samplesAfterPeakDetect++;
+            }
+            if (samplesAfterPeakDetect > MAX_SAMPLES_AFTER_PEAK_DETECT) {
+                isFallPeakDetected = false;
+                samplesAfterPeakDetect = 0;
+            }
 
+            debug(isFallPeakDetected, isLyingDetected, samplesAfterPeakDetect, currentLyingSamples);
             if (isFallPeakDetected && isLyingDetected) {
                 isLyingDetected = false;
                 isFallPeakDetected = false;
@@ -88,7 +103,19 @@ public class Algorithm {
             odczytami z zyroskopu, wartością modulo z żyroskopu, przy upadku zawsze jest >= 300 (st/sec).
              */
         }
+       /* float execTime = (System.nanoTime() - startTime)/1000000; // in ms
+        Log.e("time",String.valueOf(execTime));*/
         return false;
+    }
+
+    public static void init() {
+
+        isFallPeakDetected = false;
+        isLyingDetected = false;
+        currentLyingSamples = 0;
+        samplesAfterPeakDetect = 0;
+
+        Log.e("Algorithm", "Reset to init state");
     }
 
     private static double calculateAccelerationNormal(double aX, double aY, double aZ, double thetaY, double thetaZ) {
@@ -100,20 +127,17 @@ public class Algorithm {
     }
 
     private static boolean detectPeak(double totalAcceleration, double verticalAcceleration, double accelerationRatio) {
-        if (totalAcceleration >= TOTAL_ACC_THRESHOLD && verticalAcceleration >= VERTICAL_ACC_THRESHOLD) {
-            if (accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRatio <= ACC_COMPARISION_THRESHOLD_HIGH) {
-                return true;
-            }
-        }
-        return false;
+        return totalAcceleration >= TOTAL_ACC_THRESHOLD && verticalAcceleration >= VERTICAL_ACC_THRESHOLD && accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRatio <= ACC_COMPARISION_THRESHOLD_HIGH  ;
     }
 
     private static boolean detectLying(double totalAcceleration, double verticalAcceleration) {
-        if (totalAcceleration <= TOTAL_ACC_THRESHOLD_LYING && verticalAcceleration <= VERTICAL_ACC_THRESHOLD_LYING) {
-            return true;
-        }
-        return false;
+        return totalAcceleration <= TOTAL_ACC_THRESHOLD_LYING && verticalAcceleration <= VERTICAL_ACC_THRESHOLD_LYING;
     }
 
-
+    private static void debug(boolean isFallPeakDetected, boolean isLyingDetected, int samplesAfterPeakDetect, int currentLyingSamples) {
+        Log.e("Algorithm debug", "isFallPeakDetected:\t" + String.valueOf(isFallPeakDetected)
+                + "\tisLyingDetected:\t" + String.valueOf(isLyingDetected)
+                + "\tsamplesAfterPeakDetect:\t" + String.valueOf(samplesAfterPeakDetect)
+                + "\tcurrentlyLyingSamples:\t" + String.valueOf(currentLyingSamples));
+    }
 }

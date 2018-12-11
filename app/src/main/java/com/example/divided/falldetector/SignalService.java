@@ -8,41 +8,39 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.example.divided.falldetector.model.SensorData;
 import com.example.divided.falldetector.model.SensorDataPack;
-
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 
-
-public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener{
+public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener {
 
     private static final String TAG = SignalService.class.getSimpleName();
     private final double SAMPLING_PERIOD = 40.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
-    private final int BUFFER_SIZE = 64;
+    private final int BUFFER_SIZE = 100;
     private final int NOTIFICATION_ID = 69;
-    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(100); // ok 3s , po 75 probek na sensor
-
-
-
     NotificationManager notificationManager;
-
+    PowerManager.WakeLock wakeLock;
     com.example.divided.falldetector.model.SensorManager sensorManager;
-
-
+    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(BUFFER_SIZE); // ok 3s , po 75 probek na sensor
 
     public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
+        if (manager != null) {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -57,44 +55,68 @@ public class SignalService extends Service implements com.example.divided.fallde
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("SignalService","onDestroy()");
+        Log.e("SignalService", "onDestroy()");
         if (sensorManager != null) {
             sensorManager.unregisterListeners();
         }
         notificationManager.cancel(NOTIFICATION_ID);
-        Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
+        buffer.clear();
+        Toast.makeText(this, "Fall detection is disabled", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.e("SignalService", "onCreate()");
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        sensorManager = new com.example.divided.falldetector.model.SensorManager(this, SAMPLING_PERIOD);
+        sensorManager.setOnSensorDataListener(this);
+        /*
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager != null) {
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SignalServiceWakeLock");
+        }
+        wakeLock.acquire(1000);*/
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("SignalService","onStartCommand()");
-        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Log.e("SignalService", "onStartCommand()");
+        Toast.makeText(this, "Fall detection is enabd", Toast.LENGTH_SHORT).show();
         showNotification();
 
-        sensorManager = new com.example.divided.falldetector.model.SensorManager(this,SAMPLING_PERIOD);
-        sensorManager.setOnSensorDataListener(this);
         sensorManager.registerListeners();
 
-
-        setNotification();
+        Algorithm.init();
 
         return START_STICKY;
     }
 
 
-    private void setNotification() {
 
+    /*@Override
+    public void onTaskRemoved(Intent rootIntent){
+        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+        restartServiceIntent.setPackage(getPackageName());
 
-    }
+        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        alarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000,
+                restartServicePendingIntent);
 
+        super.onTaskRemoved(rootIntent);
+    }*/
 
     private void startAlarmActivity() {
         Log.e("SignalService", "Fall detected");
-        Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
-        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(dialogIntent);
+        Intent intent = new Intent(this, FallDetectedActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("fall_detected"));
+
     }
 
     public void showNotification() {
@@ -102,22 +124,26 @@ public class SignalService extends Service implements com.example.divided.fallde
         Resources r = getResources();
         Notification notification = new NotificationCompat.Builder(this)
                 .setTicker("Fall detector")
-                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_my_launcher_icon))
+                .setSmallIcon(R.drawable.ic_11015_falling_man)
                 .setContentTitle("Fall detection is now running")
                 .setContentText("Click to open application")
                 .setContentIntent(pi)
                 .setOngoing(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .build();
 
+
         notificationManager.notify(NOTIFICATION_ID, notification);
+
     }
 
     @Override
     public void onNewSensorData(SensorData sensorData) {
         buffer.add(sensorData);
-        if(buffer.isAtFullCapacity()){
+        if (buffer.isAtFullCapacity()) {
             final SensorDataPack sensorDataPack = new SensorDataPack(buffer);
-            if(Algorithm.fallDetectionAlgorithm(sensorDataPack)){
+            if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
                 startAlarmActivity();
             }
             buffer.clear();

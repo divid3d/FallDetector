@@ -9,7 +9,7 @@ public class LinearAccelerationData extends Data {
         super(values, timestamp);
     }
 
-    public LinearAccelerationData(float x, float y, float z, long timestamp) {
+    LinearAccelerationData(float x, float y, float z, long timestamp) {
         super(new float[]{x / SensorManager.GRAVITY_EARTH, y / SensorManager.GRAVITY_EARTH, z / SensorManager.GRAVITY_EARTH}, timestamp);
     }
 

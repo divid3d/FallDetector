@@ -28,13 +28,11 @@ public class SensorManager implements SensorEventListener {
         mSensorManager = (android.hardware.SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
     }
 
-
     public void setOnSensorDataListener(OnSensorDataListener listener) {
         if (mListener == null) {
             mListener = listener;
         }
     }
-
 
     public void unregisterListeners() {
         mSensorManager.unregisterListener(this, sensorLinearAcceleration);
@@ -66,7 +64,6 @@ public class SensorManager implements SensorEventListener {
             mSensorManager.registerListener(this, sensorRotationVector, android.hardware.SensorManager.SENSOR_DELAY_GAME);
         }
     }
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -103,13 +100,12 @@ public class SensorManager implements SensorEventListener {
             case Sensor.TYPE_ROTATION_VECTOR:
                 if ((event.timestamp - lastRotationVectorSensorTimestamp) / 1000000.0f >= mSaplingMillis) {
                     if (mListener != null) {
-                        mListener.onNewSensorData(new SensorData(new RotationVectorData(event.values[0], event.values[1], event.values[2], event.values[3], event.values[4] , event.timestamp), SensorData.SensorType.SENSOR_ROTATION_VECTOR));
+                        mListener.onNewSensorData(new SensorData(new RotationVectorData(event.values[0], event.values[1], event.values[2], event.values[3], event.values[4], event.timestamp), SensorData.SensorType.SENSOR_ROTATION_VECTOR));
                     }
                     lastRotationVectorSensorTimestamp = event.timestamp;
                 }
                 break;
         }
-
     }
 
     @Override
@@ -119,14 +115,13 @@ public class SensorManager implements SensorEventListener {
 
     private void sendMessageToActivity(double modVal, double timestamp) {
         Intent intent = new Intent("intentKey");
-// You can also include some extra data.
         intent.putExtra("key", modVal);
         intent.putExtra("timestamp", timestamp);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
     public interface OnSensorDataListener {
-        public void onNewSensorData(SensorData sensorData);
+        void onNewSensorData(SensorData sensorData);
     }
 
 }

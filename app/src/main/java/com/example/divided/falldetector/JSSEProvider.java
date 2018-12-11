@@ -5,9 +5,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
 
-public final class JSSEProvider extends Provider {
+final class JSSEProvider extends Provider {
 
-    public JSSEProvider() {
+    JSSEProvider() {
         super("HarmonyJSSE", 1.0, "Harmony JSSE Provider");
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             put("SSLContext.TLS",

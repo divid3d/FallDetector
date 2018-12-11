@@ -29,7 +29,7 @@
         android:background="@drawable/circle_button_background"
         android:fontFamily="@font/product_sans_regular"
         android:gravity="center"
-        android:text="Tap to start"
+        android:text="START\nDETECTION"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="40sp"

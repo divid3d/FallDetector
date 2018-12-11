@@ -1,8 +1,6 @@
 package com.example.divided.falldetector.model;
 
 
-import android.util.Log;
-
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
@@ -51,26 +49,101 @@ public class SensorDataPack {
         }
         */
 
-        Log.e("Sensor data pack", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
+        //Log.e("Sensor data pack", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
 
         if (!areListsSameSize()) {
             normalizeDataPack();
-        }else{
+        } else {
             packSize = linearAccelerationData.size();
         }
 
-/*
-        long accTime = (Iterables.getLast(linearAccelerationData).getTimestamp() - linearAccelerationData.get(0).getTimestamp()) / 1000000;
+
+        /*long accTime = (Iterables.getLast(linearAccelerationData).getTimestamp() - linearAccelerationData.get(0).getTimestamp()) / 1000000;
         long gyroTime = (Iterables.getLast(gyroscopeData).getTimestamp() - gyroscopeData.get(0).getTimestamp()) / 1000000;
         long magnTime = (Iterables.getLast(magneticFieldData).getTimestamp() - magneticFieldData.get(0).getTimestamp()) / 1000000;
-        long rotTime = (Iterables.getLast(rotationVectorData).getTimestamp() - rotationVectorData.get(0).getTimestamp()) / 1000000;
-*/
+        long rotTime = (Iterables.getLast(rotationVectorData).getTimestamp() - rotationVectorData.get(0).getTimestamp()) / 1000000;*/
+
+        /*long accTime = (linearAccelerationData.get(1).getTimestamp() - linearAccelerationData.get(0).getTimestamp()) / 1000000;
+        long gyroTime = (gyroscopeData.get(1).getTimestamp() - gyroscopeData.get(0).getTimestamp()) / 1000000;
+        long magnTime = (magneticFieldData.get(1).getTimestamp() - magneticFieldData.get(0).getTimestamp()) / 1000000;
+        long rotTime = (rotationVectorData.get(1).getTimestamp() - rotationVectorData.get(0).getTimestamp()) / 1000000;*/
+
         /*Log.e("Time differences", "Acc:\t" + String.format("%.3f", (float) accTime)
                 + "\tGyro:\t" + String.format("%.3f", (float) gyroTime)
                 + "\tMagn:\t" + String.format("%.3f", (float) magnTime)
                 + "\tRot:\t" + String.format("%.3f", (float) rotTime));*/
 
     }
+
+    /*private static long findMaxPeriodDifference(List<LinearAccelerationData> linearAccelerationData, List<GyroscopeData> gyroscopeData,
+                                                List<MagneticFieldData> magneticFieldData, List<RotationVectorData> rotationVectorData, int packSize) {
+        long maxPeriodDifference = 0;
+
+
+        for (int i = 0; i < packSize; i++) {
+            long[] timeStamps = new long[]{
+                    linearAccelerationData.get(i).getTimestamp(), gyroscopeData.get(i).getTimestamp(), magneticFieldData.get(i).getTimestamp(), rotationVectorData.get(i).getTimestamp()
+            };
+
+            for (int j = 0; j < 4; j++) {
+                if (j == 0) {
+                    if (Math.abs(timeStamps[0] - timeStamps[1]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[0] - timeStamps[1]);
+                    }
+
+                    if (Math.abs(timeStamps[0] - timeStamps[2]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[0] - timeStamps[2]);
+                    }
+
+                    if (Math.abs(timeStamps[0] - timeStamps[3]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[0] - timeStamps[3]);
+                    }
+                } else if (j == 1) {
+
+                    if (Math.abs(timeStamps[1] - timeStamps[0]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[1] - timeStamps[0]);
+                    }
+
+                    if (Math.abs(timeStamps[1] - timeStamps[2]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[1] - timeStamps[2]);
+                    }
+
+                    if (Math.abs(timeStamps[1] - timeStamps[3]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[1] - timeStamps[3]);
+                    }
+                } else if (j == 2) {
+
+                    if (Math.abs(timeStamps[2] - timeStamps[0]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[2] - timeStamps[0]);
+                    }
+
+                    if (Math.abs(timeStamps[2] - timeStamps[1]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[2] - timeStamps[1]);
+                    }
+
+                    if (Math.abs(timeStamps[2] - timeStamps[3]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[2] - timeStamps[3]);
+                    }
+                } else if (j == 3) {
+
+                    if (Math.abs(timeStamps[3] - timeStamps[0]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[3] - timeStamps[0]);
+                    }
+
+                    if (Math.abs(timeStamps[3] - timeStamps[1]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[3] - timeStamps[1]);
+                    }
+
+                    if (Math.abs(timeStamps[3] - timeStamps[2]) > maxPeriodDifference) {
+                        maxPeriodDifference = Math.abs(timeStamps[3] - timeStamps[2]);
+                    }
+                }
+            }
+
+        }
+
+        return maxPeriodDifference;
+    }*/
 
     public List<LinearAccelerationData> getLinearAccelerationData() {
         return linearAccelerationData;
@@ -94,9 +167,7 @@ public class SensorDataPack {
         final int magneticFieldDataSize = magneticFieldData.size();
         final int rotationVectorDataSize = rotationVectorData.size();
 
-
-        packSize = Math.min(Math.min(accelerationDataSize,gyroscopeDataSize),Math.min(magneticFieldDataSize,rotationVectorDataSize));
-
+        packSize = Math.min(Math.min(accelerationDataSize, gyroscopeDataSize), Math.min(magneticFieldDataSize, rotationVectorDataSize));
 
         if (accelerationDataSize - packSize > 0) {
             for (int i = 0; i < accelerationDataSize - packSize; i++) {
@@ -104,7 +175,7 @@ public class SensorDataPack {
             }
         }
 
-        if (gyroscopeDataSize - packSize> 0) {
+        if (gyroscopeDataSize - packSize > 0) {
             for (int i = 0; i < gyroscopeDataSize - packSize; i++) {
                 gyroscopeData.remove(i);
             }
@@ -121,10 +192,76 @@ public class SensorDataPack {
                 rotationVectorData.remove(i);
             }
         }
+/*
+        long firstTimeStamp;
+        long lastTimeStamp;
 
-        Log.e("Sensor data normalized", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
 
 
+
+        if (packSize == accelerationDataSize) {
+            firstTimeStamp = linearAccelerationData.get(0).getTimestamp();
+            lastTimeStamp = Iterables.getLast(linearAccelerationData).getTimestamp();
+        } else if (packSize == gyroscopeDataSize) {
+            firstTimeStamp = gyroscopeData.get(0).getTimestamp();
+            lastTimeStamp = Iterables.getLast(gyroscopeData).getTimestamp();
+        } else if (packSize == magneticFieldDataSize) {
+            firstTimeStamp = magneticFieldData.get(0).getTimestamp();
+            lastTimeStamp = Iterables.getLast(magneticFieldData).getTimestamp();
+        } else {
+            firstTimeStamp = rotationVectorData.get(0).getTimestamp();
+            lastTimeStamp = Iterables.getLast(rotationVectorData).getTimestamp();
+        }
+
+
+        if (accelerationDataSize - packSize > 0) {
+            for (int i = 0; i < accelerationDataSize - packSize; i++) {
+                if ((Math.abs(firstTimeStamp - linearAccelerationData.get(0).getTimestamp()) > (Math.abs(lastTimeStamp - linearAccelerationData.get(linearAccelerationData.size() - 1).getTimestamp())))) {
+                    linearAccelerationData.remove(i);
+                } else {
+                    linearAccelerationData.remove(linearAccelerationData.size() - 1);
+                }
+            }
+        }
+
+        if (gyroscopeDataSize - packSize > 0) {
+            for (int i = 0; i < gyroscopeDataSize - packSize; i++) {
+                if ((Math.abs(firstTimeStamp - gyroscopeData.get(0).getTimestamp()) > (Math.abs(lastTimeStamp - gyroscopeData.get(gyroscopeData.size() - 1).getTimestamp())))) {
+                    gyroscopeData.remove(i);
+                } else {
+                    gyroscopeData.remove(gyroscopeData.size() - 1);
+                }
+            }
+        }
+
+        if (magneticFieldDataSize - packSize > 0) {
+            for (int i = 0; i < magneticFieldDataSize - packSize; i++) {
+                if ((Math.abs(firstTimeStamp - magneticFieldData.get(0).getTimestamp()) > (Math.abs(lastTimeStamp - magneticFieldData.get(magneticFieldData.size() - 1).getTimestamp())))) {
+                    magneticFieldData.remove(i);
+                } else {
+                    magneticFieldData.remove(magneticFieldData.size() - 1);
+                }
+            }
+        }
+
+        if (rotationVectorDataSize - packSize > 0) {
+            for (int i = 0; i < rotationVectorDataSize - packSize; i++) {
+                if ((Math.abs(firstTimeStamp - rotationVectorData.get(0).getTimestamp()) > (Math.abs(lastTimeStamp - rotationVectorData.get(rotationVectorData.size() - 1).getTimestamp())))) {
+                    rotationVectorData.remove(i);
+                } else {
+                    rotationVectorData.remove(rotationVectorData.size() - 1);
+                }
+            }
+        }*/
+
+        //Log.e("Sensor data normalized", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
+
+       /* for (int i = 0; i < packSize; i++) {
+            Log.e("Test", "it\t" + (i + 1) + "\tta:\t" + String.valueOf(linearAccelerationData.get(i).mTimestamp)
+                    + "\ttg:\t" + String.valueOf(gyroscopeData.get(i).getTimestamp())
+                    + "\ttm:\t" + String.valueOf(magneticFieldData.get(i).getTimestamp())
+                    + "\ttrv:\t" + String.valueOf(rotationVectorData.get(i).getTimestamp()));
+        }*/
     }
 
     public int getPackSize() {

@@ -5,7 +5,7 @@ public class MagneticFieldData extends Data {
         super(values, timestamp);
     }
 
-    public MagneticFieldData(float x, float y, float z, long timestamp) {
+    MagneticFieldData(float x, float y, float z, long timestamp) {
         super(new float[]{x, y, z}, timestamp);
     }
 

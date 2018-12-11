@@ -1,11 +1,8 @@
 package com.example.divided.falldetector;
 
 import android.support.annotation.ColorInt;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -24,7 +21,7 @@ public class ChartUtils {
         lineChart.setPinchZoom(false);
         lineChart.setScaleEnabled(true);
         lineChart.setDrawGridBackground(false);
-        lineChart.setViewPortOffsets(0,0,0,0);
+        lineChart.setViewPortOffsets(0, 0, 0, 0);
         //lineChart.setAutoScaleMinMaxEnabled(true);
         //lineChart.getXAxis().setDrawLabels(false);
         lineChart.getXAxis().setEnabled(false);
@@ -36,7 +33,7 @@ public class ChartUtils {
         //lineChart.getAxisLeft().enableGridDashedLine(8f, 8f, 0);
     }
 
-    private static LineDataSet createSet(String label, @ColorInt int color) {
+    private static LineDataSet createSet(@ColorInt int color) {
         LineDataSet set = new LineDataSet(null, null);
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -60,18 +57,18 @@ public class ChartUtils {
         }
     }
 
-    public static void addEntry(ChartPoint point, LineChart lineChart, String label, @ColorInt int color) {
+    public static void addEntry(ChartPoint point, LineChart lineChart, @ColorInt int color) {
         LineData data = lineChart.getData();
 
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
 
             if (set == null) {
-                set = createSet(null, color);
+                set = createSet(color);
                 data.addDataSet(set);
             }
             final int dataCount = lineChart.getData().getEntryCount();
-            if(dataCount>=MAX_CHART_POINTS){
+            if (dataCount >= MAX_CHART_POINTS) {
                 set.removeFirst();
             }
             data.addEntry(new Entry(point.getTimeStamp(), point.getValue()), 0);

@@ -6,7 +6,7 @@ public class GyroscopeData extends Data {
         super(values, timestamp);
     }
 
-    public GyroscopeData(float x, float y, float z, long timestamp) {
+    GyroscopeData(float x, float y, float z, long timestamp) {
         super(new float[]{(float) (x * (180 / Math.PI)), (float) (y * (180 / Math.PI)), (float) (z * (180 / Math.PI))}, timestamp);
     }
 

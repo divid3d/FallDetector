@@ -2,8 +2,8 @@ package com.example.divided.falldetector.model;
 
 public class Data {
 
-    protected final float mValues[];
-    protected final long mTimestamp;
+    private final float mValues[];
+    private final long mTimestamp;
 
     public Data(float values[], long timestamp) {
         mValues = values;

@@ -8,7 +8,7 @@ public class SoundHelper {
     private Context mContext;
     private MediaPlayer mMediaPlayer;
 
-    public SoundHelper(Context context) {
+    SoundHelper(Context context) {
 
         if (mContext == null) {
             mContext = context;

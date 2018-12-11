@@ -4,7 +4,7 @@ public class SensorData<T> {
     private T data;
     private SensorType sensorType;
 
-    public SensorData(T data, SensorType sensorType) {
+    SensorData(T data, SensorType sensorType) {
         this.data = data;
         this.sensorType = sensorType;
     }
