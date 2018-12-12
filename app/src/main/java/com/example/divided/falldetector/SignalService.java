@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -82,7 +81,7 @@ public class SignalService extends Service implements com.example.divided.fallde
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("SignalService", "onStartCommand()");
-        Toast.makeText(this, "Fall detection is enabd", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Fall detection is enabled", Toast.LENGTH_SHORT).show();
         showNotification();
 
         sensorManager.registerListeners();
@@ -111,17 +110,12 @@ public class SignalService extends Service implements com.example.divided.fallde
 
     private void startAlarmActivity() {
         Log.e("SignalService", "Fall detected");
-        Intent intent = new Intent(this, FallDetectedActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("fall_detected"));
 
     }
 
     public void showNotification() {
         PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-        Resources r = getResources();
         Notification notification = new NotificationCompat.Builder(this)
                 .setTicker("Fall detector")
                 .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_my_launcher_icon))

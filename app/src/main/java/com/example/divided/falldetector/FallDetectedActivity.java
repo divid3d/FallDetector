@@ -23,6 +23,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.balysv.materialripple.MaterialRippleLayout;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
@@ -58,6 +59,14 @@ public class FallDetectedActivity extends AppCompatActivity {
         mCommunicates = findViewById(R.id.ts_communicate);
         mButtonCancel = findViewById(R.id.btn_cancel);
 
+        MaterialRippleLayout.on(mButtonCancel)
+                .rippleColor(Color.WHITE)
+                .rippleAlpha(0.3f)
+                .rippleHover(true)
+                .rippleOverlay(true)
+                .rippleRoundedCorners(2)
+                .create();
+
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermission();
@@ -73,10 +82,11 @@ public class FallDetectedActivity extends AppCompatActivity {
 
 
         mButtonCancel.setOnClickListener(v -> {
+            mButtonCancel.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (countDownTimer != null && isTimerRunning) {
                 countDownTimer.cancel();
                 cancelVibration(vibrator);
-                soundHelper.stopAlarmSound();
+                //soundHelper.stopAlarmSound();
                 Toast.makeText(getApplicationContext(), "Counting stopped by user", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -87,10 +97,10 @@ public class FallDetectedActivity extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
-            vibrateWithRepeat(vibrator);
+            //vibrateWithRepeat(vibrator);
         }
 
-        soundHelper.startAlarmSound();
+        //soundHelper.startAlarmSound();
         countDownTimer = new CountDownTimer(COUNTDOWN_SECONDS * 1000, 1) {
 
             @Override
@@ -104,8 +114,8 @@ public class FallDetectedActivity extends AppCompatActivity {
                 isTimerRunning = false;
                 mTextViewTimeRemaining.setText(Utils.getTime(0));
                 mProgressBar.setProgress(0);
-                cancelVibration(vibrator);
-                soundHelper.stopAlarmSound();
+                //cancelVibration(vibrator);
+                //soundHelper.stopAlarmSound();
                 //sendSMS(new String[]{"732921078"});
                 //sendEmail(new String[]{"woojciechczop@gmail.com", "n.kozlowska@vp.pl"});
 

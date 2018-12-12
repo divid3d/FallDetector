@@ -36,8 +36,13 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log.e("broadcast", "StopSamplingService()");
             stopSamplingService();
+            Intent fallAlarm = new Intent(getApplicationContext(), FallDetectedActivity.class);
+            fallAlarm.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            fallAlarm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(fallAlarm);
         }
     };
+    
     List<Entry> entries = new ArrayList<>();
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         mStartStopServiceButton.setOnClickListener(v -> {
+            mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopSamplingService();
             } else {
