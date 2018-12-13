@@ -86,7 +86,7 @@ public class FallDetectedActivity extends AppCompatActivity {
             if (countDownTimer != null && isTimerRunning) {
                 countDownTimer.cancel();
                 cancelVibration(vibrator);
-                //soundHelper.stopAlarmSound();
+                soundHelper.stopAlarmSound();
                 Toast.makeText(getApplicationContext(), "Counting stopped by user", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -97,10 +97,10 @@ public class FallDetectedActivity extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
-            //vibrateWithRepeat(vibrator);
+            vibrateWithRepeat(vibrator);
         }
 
-        //soundHelper.startAlarmSound();
+        soundHelper.startAlarmSound();
         countDownTimer = new CountDownTimer(COUNTDOWN_SECONDS * 1000, 1) {
 
             @Override
@@ -114,8 +114,8 @@ public class FallDetectedActivity extends AppCompatActivity {
                 isTimerRunning = false;
                 mTextViewTimeRemaining.setText(Utils.getTime(0));
                 mProgressBar.setProgress(0);
-                //cancelVibration(vibrator);
-                //soundHelper.stopAlarmSound();
+                cancelVibration(vibrator);
+                soundHelper.stopAlarmSound();
                 //sendSMS(new String[]{"732921078"});
                 //sendEmail(new String[]{"woojciechczop@gmail.com", "n.kozlowska@vp.pl"});
 

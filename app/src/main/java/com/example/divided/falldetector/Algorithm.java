@@ -91,7 +91,7 @@ public class Algorithm {
                 samplesAfterPeakDetect = 0;
             }
 
-            debug(isFallPeakDetected, isLyingDetected, samplesAfterPeakDetect, currentLyingSamples);
+            //debug(isFallPeakDetected, isLyingDetected, samplesAfterPeakDetect, currentLyingSamples);
             if (isFallPeakDetected && isLyingDetected) {
                 isLyingDetected = false;
                 isFallPeakDetected = false;

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -31,18 +32,32 @@ public class MainActivity extends AppCompatActivity {
 
     Button mStartStopServiceButton;
     LineChart chart;
+    TimeCounter timeCounter;
+
     private final BroadcastReceiver mFallDetected = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.e("broadcast", "StopSamplingService()");
             stopSamplingService();
+            timeCounter.hide();
+            timeCounter.reset();
             Intent fallAlarm = new Intent(getApplicationContext(), FallDetectedActivity.class);
             fallAlarm.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             fallAlarm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(fallAlarm);
         }
     };
-    
+    long startTime = 0;
+    Handler timerHandler = new Handler();
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - startTime;
+            timeCounter.setTime(millis);
+            timerHandler.postDelayed(this, 250);
+        }
+    };
     List<Entry> entries = new ArrayList<>();
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -65,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mStartStopServiceButton = findViewById(R.id.btn_start_service);
+        timeCounter = findViewById(R.id.time_counter);
+        //timeCounter.setTypeFace(ResourcesCompat.getFont(this,R.font.product_sans_regular));
+
         chart = findViewById(R.id.chart);
 
         ChartUtils.setupChart(chart, 0, 6);
@@ -82,7 +100,13 @@ public class MainActivity extends AppCompatActivity {
             mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopSamplingService();
+                timerHandler.removeCallbacks(timerRunnable);
+                timeCounter.hide();
+                timeCounter.reset();
             } else {
+                startTime = System.currentTimeMillis();
+                timerHandler.postDelayed(timerRunnable, 0);
+                timeCounter.show();
                 startSamplingService();
             }
         });
@@ -102,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("intentKey"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mFallDetected, new IntentFilter("fall_detected"));
+
+
     }
 
     @Override
@@ -204,12 +230,12 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.test_detection) {
             Log.e("Fall detected", "Fall detected");
             Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(dialogIntent);
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("fall_detected"));
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

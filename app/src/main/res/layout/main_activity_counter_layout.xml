@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/label_hour"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:fontFamily="@font/product_sans_bold"
+            android:gravity="center"
+            android:text="@string/label_hour"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <com.robinhood.ticker.TickerView
+            android:id="@+id/ticker_view_hour"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label_hour"
+            android:gravity="center"
+            android:text="@string/counter_init"
+            android:textColor="@android:color/white"
+            android:textSize="30sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="1px"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/label_minute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:fontFamily="@font/product_sans_bold"
+            android:gravity="center"
+            android:text="@string/label_minutes"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <com.robinhood.ticker.TickerView
+            android:id="@+id/ticker_view_minute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label_minute"
+            android:gravity="center"
+            android:text="@string/counter_init"
+            android:textColor="@android:color/white"
+            android:textSize="30sp" />
+
+    </RelativeLayout>
+
+
+    <View
+        android:layout_width="1px"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/label_second"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:fontFamily="@font/product_sans_bold"
+            android:gravity="center"
+            android:text="@string/label_seconds"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <com.robinhood.ticker.TickerView
+            android:id="@+id/ticker_view_second"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label_second"
+            android:fontFamily="@font/product_sans_bold"
+            android:gravity="center"
+            android:text="@string/counter_init"
+            android:textColor="@android:color/white"
+            android:textSize="30sp" />
+    </RelativeLayout>
+
+</merge>

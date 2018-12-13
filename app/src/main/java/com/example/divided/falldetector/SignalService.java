@@ -127,9 +127,7 @@ public class SignalService extends Service implements com.example.divided.fallde
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .build();
 
-
         notificationManager.notify(NOTIFICATION_ID, notification);
-
     }
 
     @Override
