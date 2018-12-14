@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("MainActivity", "onCreate()");
+        Log.e("MainActivity", "onCreate()");
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.tool_bar);
@@ -133,26 +133,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i("MainActivity", "onPause()");
+        Log.e("MainActivity", "onPause()");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("MainActivity", "onResume()");
+        Log.e("MainActivity", "onResume()");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i("MainActivity", "onStop()");
+        Log.e("MainActivity", "onStop()");
     }
 
     private void startSamplingService() {
         Intent intent = new Intent(this, SignalService.class);
         startService(intent);
         mStartStopServiceButton.setText(R.string.stop_detection);
-        Animation chartInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        Animation chartInAnimation = AnimationUtils.loadAnimation(this, R.anim.chart_in_anim);
         chartInAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     private void stopSamplingService() {
         stopService(new Intent(this, SignalService.class));
         mStartStopServiceButton.setText(R.string.start_detection);
-        Animation chartOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+        Animation chartOutAnimation = AnimationUtils.loadAnimation(this, R.anim.char_out_anim);
         chartOutAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i("MainActivity", "onDestroy()");
+        Log.e("MainActivity", "onDestroy()");
         if (isFinishing()) {
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopSamplingService();

@@ -27,7 +27,9 @@ public class SignalService extends Service implements com.example.divided.fallde
     private static final String TAG = SignalService.class.getSimpleName();
     private final double SAMPLING_PERIOD = 40.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
     private final int BUFFER_SIZE = 100;
-    private final int NOTIFICATION_ID = 69;
+    private final int NOTIFICATION_ID = 1;
+    private boolean isForegroundStarted = false;
+
     NotificationManager notificationManager;
     PowerManager.WakeLock wakeLock;
     com.example.divided.falldetector.model.SensorManager sensorManager;
@@ -70,6 +72,7 @@ public class SignalService extends Service implements com.example.divided.fallde
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         sensorManager = new com.example.divided.falldetector.model.SensorManager(this, SAMPLING_PERIOD);
         sensorManager.setOnSensorDataListener(this);
+        isForegroundStarted = true;
         /*
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         if (powerManager != null) {
@@ -82,12 +85,11 @@ public class SignalService extends Service implements com.example.divided.fallde
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("SignalService", "onStartCommand()");
         Toast.makeText(this, "Fall detection is enabled", Toast.LENGTH_SHORT).show();
-        showNotification();
-
-        sensorManager.registerListeners();
-
-        Algorithm.init();
-
+        if(isForegroundStarted) {
+            showNotification();
+            sensorManager.registerListeners();
+            Algorithm.init();
+        }
         return START_STICKY;
     }
 
@@ -127,7 +129,8 @@ public class SignalService extends Service implements com.example.divided.fallde
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .build();
 
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        //notificationManager.notify(NOTIFICATION_ID, notification);
+        startForeground(NOTIFICATION_ID,notification);
     }
 
     @Override

@@ -162,34 +162,38 @@ public class SensorDataPack {
     }
 
     private void normalizeDataPack() {
-        final int accelerationDataSize = linearAccelerationData.size();
-        final int gyroscopeDataSize = gyroscopeData.size();
-        final int magneticFieldDataSize = magneticFieldData.size();
-        final int rotationVectorDataSize = rotationVectorData.size();
+        int accelerationDataSize = linearAccelerationData.size();
+        int gyroscopeDataSize = gyroscopeData.size();
+        int magneticFieldDataSize = magneticFieldData.size();
+        int rotationVectorDataSize = rotationVectorData.size();
 
         packSize = Math.min(Math.min(accelerationDataSize, gyroscopeDataSize), Math.min(magneticFieldDataSize, rotationVectorDataSize));
 
         if (accelerationDataSize - packSize > 0) {
             for (int i = 0; i < accelerationDataSize - packSize; i++) {
                 linearAccelerationData.remove(i);
+                accelerationDataSize = linearAccelerationData.size();
             }
         }
 
         if (gyroscopeDataSize - packSize > 0) {
             for (int i = 0; i < gyroscopeDataSize - packSize; i++) {
                 gyroscopeData.remove(i);
+                gyroscopeDataSize = gyroscopeData.size();
             }
         }
 
         if (magneticFieldDataSize - packSize > 0) {
             for (int i = 0; i < magneticFieldDataSize - packSize; i++) {
                 magneticFieldData.remove(i);
+                magneticFieldDataSize = magneticFieldData.size();
             }
         }
 
         if (rotationVectorDataSize - packSize > 0) {
             for (int i = 0; i < rotationVectorDataSize - packSize; i++) {
                 rotationVectorData.remove(i);
+                rotationVectorDataSize = rotationVectorData.size();
             }
         }
 /*

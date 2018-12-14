@@ -66,10 +66,12 @@ public class SensorManager implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
+    final public void onSensorChanged(SensorEvent event) {
         switch (event.sensor.getType()) {
             case Sensor.TYPE_LINEAR_ACCELERATION:
                 if ((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000.0f >= mSaplingMillis) {
+                    //Log.e("Sensor period",String.valueOf((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000.0f)+" ms");
+                    //Log.e("Sensor freq",String.valueOf(1/((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000000.0f))+" Hz");
                     LinearAccelerationData data = new LinearAccelerationData(event.values[0], event.values[1], event.values[2], event.timestamp);
                     sendMessageToActivity(data.getModule(), data.getTimestamp());
                     if (mListener != null) {
