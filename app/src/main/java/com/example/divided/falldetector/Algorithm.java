@@ -24,7 +24,7 @@ public class Algorithm {
     private static int samplesAfterPeakDetect = 0;
 
 
-    public static boolean fallDetectionAlgorithm(SensorDataPack sensorDataPack) {
+    synchronized public static boolean fallDetectionAlgorithm(SensorDataPack sensorDataPack) {
 
 
        /* Log.e("BUFFER SIZE", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());

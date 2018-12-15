@@ -1,17 +1,19 @@
 package com.example.divided.falldetector.model;
 
 
+import android.util.Log;
+
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SensorDataPack {
 
-    private List<LinearAccelerationData> linearAccelerationData = new ArrayList<>();
-    private List<GyroscopeData> gyroscopeData = new ArrayList<>();
-    private List<MagneticFieldData> magneticFieldData = new ArrayList<>();
-    private List<RotationVectorData> rotationVectorData = new ArrayList<>();
+    private List<LinearAccelerationData> linearAccelerationData = new LinkedList<>();
+    private List<GyroscopeData> gyroscopeData = new LinkedList<>();
+    private List<MagneticFieldData> magneticFieldData = new LinkedList<>();
+    private List<RotationVectorData> rotationVectorData = new LinkedList<>();
     private int packSize;
 
     public SensorDataPack(CircularFifoQueue<SensorData> buffer) {
@@ -49,7 +51,7 @@ public class SensorDataPack {
         }
         */
 
-        //Log.e("Sensor data pack", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
+        Log.e("Sensor data pack", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
 
         if (!areListsSameSize()) {
             normalizeDataPack();
@@ -162,38 +164,30 @@ public class SensorDataPack {
     }
 
     private void normalizeDataPack() {
-        int accelerationDataSize = linearAccelerationData.size();
-        int gyroscopeDataSize = gyroscopeData.size();
-        int magneticFieldDataSize = magneticFieldData.size();
-        int rotationVectorDataSize = rotationVectorData.size();
 
-        packSize = Math.min(Math.min(accelerationDataSize, gyroscopeDataSize), Math.min(magneticFieldDataSize, rotationVectorDataSize));
+        packSize = Math.min(Math.min(linearAccelerationData.size(), gyroscopeData.size()), Math.min(magneticFieldData.size(), rotationVectorData.size()));
 
-        if (accelerationDataSize - packSize > 0) {
-            for (int i = 0; i < accelerationDataSize - packSize; i++) {
-                linearAccelerationData.remove(i);
-                accelerationDataSize = linearAccelerationData.size();
+        if (linearAccelerationData.size() - packSize > 0) {
+            while (linearAccelerationData.size() != packSize) {
+                linearAccelerationData.remove(0);
             }
         }
 
-        if (gyroscopeDataSize - packSize > 0) {
-            for (int i = 0; i < gyroscopeDataSize - packSize; i++) {
-                gyroscopeData.remove(i);
-                gyroscopeDataSize = gyroscopeData.size();
+        if (gyroscopeData.size() - packSize > 0) {
+            while (gyroscopeData.size() != packSize) {
+                gyroscopeData.remove(0);
             }
         }
 
-        if (magneticFieldDataSize - packSize > 0) {
-            for (int i = 0; i < magneticFieldDataSize - packSize; i++) {
-                magneticFieldData.remove(i);
-                magneticFieldDataSize = magneticFieldData.size();
+        if (magneticFieldData.size() - packSize > 0) {
+            while (magneticFieldData.size() != packSize) {
+                magneticFieldData.remove(0);
             }
         }
 
-        if (rotationVectorDataSize - packSize > 0) {
-            for (int i = 0; i < rotationVectorDataSize - packSize; i++) {
-                rotationVectorData.remove(i);
-                rotationVectorDataSize = rotationVectorData.size();
+        if (rotationVectorData.size() - packSize > 0) {
+            while (rotationVectorData.size() != packSize) {
+                rotationVectorData.remove(0);
             }
         }
 /*
@@ -258,7 +252,7 @@ public class SensorDataPack {
             }
         }*/
 
-        //Log.e("Sensor data normalized", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
+        Log.e("Sensor data normalized", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
 
        /* for (int i = 0; i < packSize; i++) {
             Log.e("Test", "it\t" + (i + 1) + "\tta:\t" + String.valueOf(linearAccelerationData.get(i).mTimestamp)

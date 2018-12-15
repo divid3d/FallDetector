@@ -15,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -32,21 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     Button mStartStopServiceButton;
     LineChart chart;
-    TimeCounter timeCounter;
-
-    private final BroadcastReceiver mFallDetected = new BroadcastReceiver() {
+    final private BroadcastReceiver mAccelerationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("broadcast", "StopSamplingService()");
-            stopSamplingService();
-            timeCounter.hide();
-            timeCounter.reset();
-            Intent fallAlarm = new Intent(getApplicationContext(), FallDetectedActivity.class);
-            fallAlarm.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            fallAlarm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(fallAlarm);
+            final float modVal = (float) intent.getDoubleExtra("accMod", 0);
+            final float timestamp = (float) intent.getDoubleExtra("timestamp", 0);
+            ChartPoint chartPoint = new ChartPoint(modVal, timestamp);
+            ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
         }
     };
+    TimeCounter timeCounter;
     long startTime = 0;
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
@@ -58,16 +52,34 @@ public class MainActivity extends AppCompatActivity {
             timerHandler.postDelayed(this, 250);
         }
     };
-    List<Entry> entries = new ArrayList<>();
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mServiceStopped = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final float modVal = (float) intent.getDoubleExtra("key", 0);
-            final float timestamp = (float) intent.getDoubleExtra("timestamp", 0);
-            ChartPoint chartPoint = new ChartPoint(modVal, timestamp);
-            ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
+            Log.e("broadcast", "Service stopped");
+            timerHandler.removeCallbacks(timerRunnable);
+            timeCounter.reset();
+            timeCounter.hide();
+            mStartStopServiceButton.setText(R.string.start_detection);
+            Animation chartOutAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.char_out_anim);
+            chartOutAnimation.setFillAfter(true);
+            chart.startAnimation(chartOutAnimation);
         }
     };
+    private final BroadcastReceiver mServiceStarted = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("broadcast", "Service started");
+            timeCounter.show();
+            startTime = System.currentTimeMillis();
+            timerHandler.postDelayed(timerRunnable, 0);
+            mStartStopServiceButton.setText(R.string.stop_detection);
+            Animation chartInAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.chart_in_anim);
+            chartInAnimation.setFillAfter(true);
+            ChartUtils.clearChart(chart);
+            chart.startAnimation(chartInAnimation);
+        }
+    };
+    List<Entry> entries = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,15 +111,9 @@ public class MainActivity extends AppCompatActivity {
         mStartStopServiceButton.setOnClickListener(v -> {
             mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (SignalService.isServiceRunning(this, SignalService.class)) {
-                stopSamplingService();
-                timerHandler.removeCallbacks(timerRunnable);
-                timeCounter.hide();
-                timeCounter.reset();
+                stopService(new Intent(this, SignalService.class));
             } else {
-                startTime = System.currentTimeMillis();
-                timerHandler.postDelayed(timerRunnable, 0);
-                timeCounter.show();
-                startSamplingService();
+                startService(new Intent(this, SignalService.class));
             }
         });
 
@@ -123,11 +129,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                mMessageReceiver, new IntentFilter("intentKey"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mFallDetected, new IntentFilter("fall_detected"));
-
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStarted, new IntentFilter("service_started"));
     }
 
     @Override
@@ -147,66 +151,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         Log.e("MainActivity", "onStop()");
     }
-
-    private void startSamplingService() {
-        Intent intent = new Intent(this, SignalService.class);
-        startService(intent);
-        mStartStopServiceButton.setText(R.string.stop_detection);
-        Animation chartInAnimation = AnimationUtils.loadAnimation(this, R.anim.chart_in_anim);
-        chartInAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                ChartUtils.clearChart(chart);
-                chart.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        chart.startAnimation(chartInAnimation);
-    }
-
-    private void stopSamplingService() {
-        stopService(new Intent(this, SignalService.class));
-        mStartStopServiceButton.setText(R.string.start_detection);
-        Animation chartOutAnimation = AnimationUtils.loadAnimation(this, R.anim.char_out_anim);
-        chartOutAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                chart.setVisibility(View.INVISIBLE);
-                ChartUtils.clearChart(chart);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        chart.startAnimation(chartOutAnimation);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e("MainActivity", "onDestroy()");
-        if (isFinishing()) {
-            if (SignalService.isServiceRunning(this, SignalService.class)) {
-                stopSamplingService();
-            }
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -228,12 +172,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.test_detection) {
-            Log.e("Fall detected", "Fall detected");
+            Log.e("Fall detected", "Fall detected test");
             Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(dialogIntent);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("fall_detected"));
             return true;
         }
         return super.onOptionsItemSelected(item);
