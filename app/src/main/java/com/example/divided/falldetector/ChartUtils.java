@@ -12,9 +12,9 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 public class ChartUtils {
 
-    private static final int MAX_CHART_POINTS = 256;
+    private static final int MAX_CHART_POINTS = 200;
 
-    public static void setupChart(LineChart lineChart, float min, float max) {
+    public static void setupChart(LineChart lineChart) {
         lineChart.getDescription().setEnabled(false);
         lineChart.getLegend().setEnabled(false);
         lineChart.setTouchEnabled(false);

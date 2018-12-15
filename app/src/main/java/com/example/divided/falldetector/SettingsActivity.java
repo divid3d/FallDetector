@@ -19,6 +19,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
+
+
+
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, newValue) -> {
         String stringValue = newValue.toString();
 
@@ -39,7 +42,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             if (TextUtils.isEmpty(stringValue)) {
                 // Empty values correspond to 'silent' (no ringtone).
                 // preference.setSummary(R.string.pref_ringtone_silent);
-
             } else {
                 Ringtone ringtone = RingtoneManager.getRingtone(
                         preference.getContext(), Uri.parse(stringValue));
@@ -54,14 +56,45 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     preference.setSummary(name);
                 }
             }
-
         } else if (preference instanceof EditTextPreference) {
-            /*if (preference.getKey().equals("key_gallery_name")) {
-                // update the changed gallery name to summary filed
-                preference.setSummary(stringValue);
-            }*/
-        } else {/*
-            preference.setSummary(stringValue);*/
+            if (preference.getKey().equals("key_phone_number")) {
+                if(stringValue.trim().length()>0){
+                    preference.setSummary(stringValue);
+                }else{
+                    preference.setSummary("Enter phone number");
+                }
+            } else if (preference.getKey().equals("key_username")) {
+                if(stringValue.trim().length()>0){
+                    preference.setSummary(stringValue);
+                }else{
+                    preference.setSummary("Username");
+                }
+            } else if (preference.getKey().equals("key_email_address")) {
+                if(stringValue.trim().length()>0){
+                    preference.setSummary(stringValue);
+                }else{
+                    preference.setSummary("E-mail address");
+                }
+            } else if (preference.getKey().equals("key_email_login")) {
+                if(stringValue.trim().length()>0){
+                    preference.setSummary(stringValue);
+                }else{
+                    preference.setSummary("E-mail login");
+                }
+            } else if (preference.getKey().equals("key_email_password")) {
+                final int passwordLength = stringValue.length();
+                if(passwordLength >0) {
+                    StringBuilder summary = new StringBuilder();
+                    for (int i = 0; i < passwordLength; i++) {
+                        summary.append("*");
+                    }
+                    preference.setSummary(summary);
+                }else{
+                    preference.setSummary("E-mail password");
+                }
+            }
+        } else if (preference instanceof NumberPickerPreference) {
+
         }
         return true;
     };
@@ -98,11 +131,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_main);
 
-            // gallery EditText change listener
             bindPreferenceSummaryToValue(findPreference("key_username"));
-
-            // notification preference change listener
             bindPreferenceSummaryToValue(findPreference("key_phone_number"));
+            bindPreferenceSummaryToValue(findPreference("key_email_address"));
+            bindPreferenceSummaryToValue(findPreference("key_email_login"));
+            bindPreferenceSummaryToValue(findPreference("key_email_password"));
 
             // feedback preference click listener
             /*Preference myPref = findPreference(getString(R.string.key_send_feedback));

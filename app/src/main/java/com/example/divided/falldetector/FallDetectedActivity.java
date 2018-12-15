@@ -32,8 +32,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class FallDetectedActivity extends AppCompatActivity {
 
-    public static final int COUNTDOWN_SECONDS = 30;
-    final String applicationUsername = "Wojtek";
     TextView mTextViewFallDetected;
     TextView mTextViewTimeRemaining;
     TextSwitcher mCommunicates;
@@ -44,6 +42,7 @@ public class FallDetectedActivity extends AppCompatActivity {
     Vibrator vibrator;
     boolean isTimerRunning = false;
     Location currentLocation;
+    UserSettings userSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +51,9 @@ public class FallDetectedActivity extends AppCompatActivity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+        userSettings = new UserSettings(this);
+
 
         mTextViewFallDetected = findViewById(R.id.tv_alarm_text);
         mTextViewTimeRemaining = findViewById(R.id.tv_time_remaining);
@@ -85,8 +87,12 @@ public class FallDetectedActivity extends AppCompatActivity {
             mButtonCancel.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (countDownTimer != null && isTimerRunning) {
                 countDownTimer.cancel();
-                cancelVibration(vibrator);
-                soundHelper.stopAlarmSound();
+                if (userSettings.isVibrationEnabled()) {
+                    cancelVibration(vibrator);
+                }
+                if (userSettings.isAlarmSoundEnabled()) {
+                    soundHelper.stopAlarmSound();
+                }
                 Toast.makeText(getApplicationContext(), "Counting stopped by user", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -96,17 +102,19 @@ public class FallDetectedActivity extends AppCompatActivity {
         indicator.getIndeterminateDrawable().setColorFilter(Color.WHITE, android.graphics.PorterDuff.Mode.MULTIPLY);
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        if (vibrator != null) {
+        if (userSettings.isVibrationEnabled() && vibrator != null) {
             vibrateWithRepeat(vibrator);
         }
 
-        soundHelper.startAlarmSound();
-        countDownTimer = new CountDownTimer(COUNTDOWN_SECONDS * 1000, 1) {
+        if (userSettings.isAlarmSoundEnabled()) {
+            soundHelper.startAlarmSound();
+        }
+        countDownTimer = new CountDownTimer(userSettings.getAlarmDuration() * 1000, 1) {
 
             @Override
             public void onTick(long millisUntilFinished) {
                 mTextViewTimeRemaining.setText(Utils.getTime(millisUntilFinished));
-                mProgressBar.setProgress((millisUntilFinished / (COUNTDOWN_SECONDS * 1000f)) * 100);
+                mProgressBar.setProgress((millisUntilFinished / (userSettings.getAlarmDuration() * 1000f)) * 100);
             }
 
             @Override
@@ -114,8 +122,12 @@ public class FallDetectedActivity extends AppCompatActivity {
                 isTimerRunning = false;
                 mTextViewTimeRemaining.setText(Utils.getTime(0));
                 mProgressBar.setProgress(0);
-                cancelVibration(vibrator);
-                soundHelper.stopAlarmSound();
+                if (userSettings.isVibrationEnabled()) {
+                    cancelVibration(vibrator);
+                }
+                if (userSettings.isAlarmSoundEnabled()) {
+                    soundHelper.stopAlarmSound();
+                }
                 //sendSMS(new String[]{"732921078"});
                 //sendEmail(new String[]{"woojciechczop@gmail.com", "n.kozlowska@vp.pl"});
 
@@ -203,12 +215,12 @@ public class FallDetectedActivity extends AppCompatActivity {
             GMailSender sender = new GMailSender(username, password);
 
             Thread senderThread = new Thread(() -> {
-                for (String emailAdress : emailAdresses) {
+                for (String emailAddress : emailAdresses) {
                     try {
                         sender.sendMail("Fall alarm!",
                                 body,
-                                applicationUsername,
-                                emailAdress);
+                                userSettings.getUsername(),
+                                emailAddress);
                     } catch (Exception e) {
                         Log.e("E-MAIL", "Error: " + e.getMessage());
                     }

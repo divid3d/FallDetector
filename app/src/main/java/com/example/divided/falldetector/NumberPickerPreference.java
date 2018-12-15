@@ -15,7 +15,7 @@ public class NumberPickerPreference extends DialogPreference {
 
     // allowed range
     private static final int MAX_VALUE = 60;
-    private static final int MIN_VALUE = 0;
+    private static final int MIN_VALUE = 10;
     // enable or disable the 'circular behavior'
     private static final boolean WRAP_SELECTOR_WHEEL = false;
 

@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
             ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
         }
     };
+
     TimeCounter timeCounter;
     long startTime = 0;
     Handler timerHandler = new Handler();
@@ -86,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.e("MainActivity", "onCreate()");
         setContentView(R.layout.activity_main);
+        UserSettings userSettings = new UserSettings(this);
+
 
         Toolbar toolbar = findViewById(R.id.tool_bar);
         toolbar.setTitleTextColor(Color.WHITE);
@@ -97,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
         chart = findViewById(R.id.chart);
 
-        ChartUtils.setupChart(chart, 0, 6);
+        ChartUtils.setupChart(chart);
         ChartUtils.setupData(chart);
 
         MaterialRippleLayout.on(mStartStopServiceButton)
@@ -109,11 +112,16 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         mStartStopServiceButton.setOnClickListener(v -> {
-            mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
-            if (SignalService.isServiceRunning(this, SignalService.class)) {
-                stopService(new Intent(this, SignalService.class));
+            if (userSettings.verify()) {
+                mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
+                if (SignalService.isServiceRunning(this, SignalService.class)) {
+                    stopService(new Intent(this, SignalService.class));
+                } else {
+                    startService(new Intent(this, SignalService.class));
+                }
             } else {
-                startService(new Intent(this, SignalService.class));
+                Intent intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -168,17 +176,24 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.settings) {
+            if(SignalService.isServiceRunning(this, SignalService.class)){
+                stopService(new Intent(this,SignalService.class));
+            }
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
-        } else if (id == R.id.test_detection) {
-            Log.e("Fall detected", "Fall detected test");
-            Intent dialogIntent = new Intent(this, FallDetectedActivity.class);
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(dialogIntent);
-            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e("MainActivity", "onDestroy()");
+        if (isFinishing()) {
+            if (SignalService.isServiceRunning(this, SignalService.class)) {
+                stopService(new Intent(this, SignalService.class));
+            }
+        }
     }
 }

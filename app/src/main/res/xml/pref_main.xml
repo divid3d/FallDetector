@@ -2,6 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="User">
         <EditTextPreference
+            android:hint="username"
+            android:inputType="textCapWords"
             android:key="key_username"
             android:summary="Username"
             android:title="Enter your name" />
@@ -18,8 +20,10 @@
 
         <EditTextPreference
             android:dependency="sms_request_enable"
+            android:hint="phone number"
             android:inputType="phone"
             android:key="key_phone_number"
+            android:singleLine="true"
             android:summary="Enter phone number that will be send SMS with help request"
             android:title="Phone number" />
     </PreferenceCategory>
@@ -32,23 +36,26 @@
 
         <EditTextPreference
             android:dependency="email_request_enable"
-            android:inputType="textEmailAddress"
+            android:hint="e-mail address"
+            android:inputType="textWebEmailAddress"
             android:key="key_email_address"
             android:summary="Enter address that will be send e-mail with help request"
             android:title="E-mail address" />
 
         <EditTextPreference
             android:dependency="email_request_enable"
-            android:inputType="textEmailAddress"
+            android:hint="login"
+            android:inputType="textWebEmailAddress"
             android:key="key_email_login"
-            android:summary="Enter gmail login"
+            android:summary="Enter e-mail login"
             android:title="E-mail login" />
 
         <EditTextPreference
             android:dependency="email_request_enable"
+            android:hint="password"
             android:inputType="textPassword"
             android:key="key_email_password"
-            android:summary="Enter gmail password"
+            android:summary="Enter e-mail password"
             android:title="E-mail password" />
 
     </PreferenceCategory>
@@ -63,7 +70,8 @@
 
         <com.example.divided.falldetector.NumberPickerPreference
             android:defaultValue="15"
-            android:key="alarm_time"
+            android:key="key_alarm_time"
+            android:persistent="true"
             android:summary="Set alarm duration in seconds"
             android:title="Alarm duration" />
 
@@ -76,14 +84,32 @@
             android:summary="Click to enable sound alarm"
             android:title="Alarm sound enable" />
 
-
-        <RingtonePreference
-            android:dependency="alarm_sound_enabled"
-            android:key="alarm_sound"
-            android:summary="Click to chose alarm sound"
-            android:title="Alarm sound" />
     </PreferenceCategory>
-    <!--
+
+    <PreferenceCategory android:title="Testing">
+
+        <PreferenceScreen
+            android:dependency="sms_request_enable"
+            android:summary="Click here to test SMS help request"
+            android:title="SMS help request" />
+
+        <PreferenceScreen
+            android:dependency="email_request_enable"
+            android:summary="Click here to test e-mail help request"
+            android:title="E-mail help request" />
+
+        <PreferenceScreen
+            android:summary="Click here to test fall detection event"
+            android:title="Fall detection event">
+
+            <intent android:action="example.action.ACTION_FALL_DETECTED_ACTIVITY" />
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:summary="Click here to test localization"
+            android:title="Localization" />
+    </PreferenceCategory><!--
 
         <RingtonePreference
             android:defaultValue="content://settings/system/notification_sound"

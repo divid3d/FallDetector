@@ -24,13 +24,13 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener {
 
     private final double SAMPLING_PERIOD = 40.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
-    private final int BUFFER_SIZE = 100;
+    private final int BUFFER_SIZE = 200;
     private final int NOTIFICATION_ID = 1;
     private final String CHANEL_ID = "001";
     NotificationManager notificationManager;
     com.example.divided.falldetector.model.SensorManager sensorManager;
     private boolean isForegroundStarted = false;
-    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(BUFFER_SIZE); // ok 3s , po 75 probek na sensor
+    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(BUFFER_SIZE); // ok 2s, czyli 2x4x25 = 200
 
     public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -127,7 +127,7 @@ public class SignalService extends Service implements com.example.divided.fallde
 
     public void showNotification() {
         PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-        Notification notification = new NotificationCompat.Builder(this,CHANEL_ID)
+        Notification notification = new NotificationCompat.Builder(this, CHANEL_ID)
                 .setTicker("Fall detector")
                 .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_my_launcher_icon))
                 .setSmallIcon(R.drawable.ic_11015_falling_man)
@@ -146,15 +146,10 @@ public class SignalService extends Service implements com.example.divided.fallde
         buffer.add(sensorData);
         if (buffer.isAtFullCapacity()) {
             final SensorDataPack sensorDataPack = new SensorDataPack(buffer);
-            new Thread(() -> {
-                if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
-                    startAlarmActivity();
-                    stopSelf();
-                }
-            }).start();
-           /* if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
+            if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
+                stopSelf();
                 startAlarmActivity();
-            }*/
+            }
             buffer.clear();
         }
     }
