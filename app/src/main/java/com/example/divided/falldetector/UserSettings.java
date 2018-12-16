@@ -37,30 +37,42 @@ public class UserSettings implements SharedPreferences.OnSharedPreferenceChangeL
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        if (key.equals("key_username")) {
-            this.username = sharedPreferences.getString("key_username", "");
-        } else if (key.equals("sms_request_enable")) {
-            this.isSmsEnabled = sharedPreferences.getBoolean("sms_request_enable", false);
-        } else if (key.equals("email_request_enable")) {
-            this.isEmailEnabled = sharedPreferences.getBoolean("email_request_enable", false);
-        } else if (key.equals("key_phone_number")) {
-            this.phoneNumber = sharedPreferences.getString("key_phone_number", "");
-        } else if (key.equals("key_email_address")) {
-            this.emailAddress = sharedPreferences.getString("key_email_address", "");
-        } else if (key.equals("key_email_login")) {
-            this.emailLogin = sharedPreferences.getString("key_email_login", "");
-        } else if (key.equals("key_email_password")) {
-            this.emailPassword = sharedPreferences.getString("key_email_password", "");
-        } else if (key.equals("alarm_vibration_enable")) {
-            this.isVibrationEnabled = sharedPreferences.getBoolean("alarm_vibration_enable", false);
-        } else if (key.equals("key_alarm_time")) {
-            this.alarmDuration = sharedPreferences.getInt("key_alarm_time", 0);
-        } else if (key.equals("key_alarm_sound")) {
-            this.isAlarmSoundEnabled = sharedPreferences.getBoolean("key_alarm_sound", false);
+        switch (key) {
+            case "key_username":
+                this.username = sharedPreferences.getString("key_username", "");
+                break;
+            case "sms_request_enable":
+                this.isSmsEnabled = sharedPreferences.getBoolean("sms_request_enable", false);
+                break;
+            case "email_request_enable":
+                this.isEmailEnabled = sharedPreferences.getBoolean("email_request_enable", false);
+                break;
+            case "key_phone_number":
+                this.phoneNumber = sharedPreferences.getString("key_phone_number", "");
+                break;
+            case "key_email_address":
+                this.emailAddress = sharedPreferences.getString("key_email_address", "");
+                break;
+            case "key_email_login":
+                this.emailLogin = sharedPreferences.getString("key_email_login", "");
+                break;
+            case "key_email_password":
+                this.emailPassword = sharedPreferences.getString("key_email_password", "");
+                break;
+            case "alarm_vibration_enable":
+                this.isVibrationEnabled = sharedPreferences.getBoolean("alarm_vibration_enable", false);
+                break;
+            case "key_alarm_time":
+                this.alarmDuration = sharedPreferences.getInt("key_alarm_time", 0);
+                break;
+            case "key_alarm_sound":
+                this.isAlarmSoundEnabled = sharedPreferences.getBoolean("key_alarm_sound", false);
+                break;
         }
     }
 
-    public boolean verify() {
+    public boolean verifySettings() {
+
         if (username.trim().length() == 0) {
             Toast.makeText(mContext, "Please enter username", Toast.LENGTH_SHORT).show();
             return false;

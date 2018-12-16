@@ -1,26 +1,14 @@
 package com.example.divided.falldetector;
 
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.view.MenuItem;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
-    private static final String TAG = SettingsActivity.class.getSimpleName();
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-
-
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, newValue) -> {
         String stringValue = newValue.toString();
@@ -36,62 +24,48 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     index >= 0
                             ? listPreference.getEntries()[index]
                             : null);
-        } else if (preference instanceof RingtonePreference) {
-            // For ringtone preferences, look up the correct display value
-            // using RingtoneManager.
-            if (TextUtils.isEmpty(stringValue)) {
-                // Empty values correspond to 'silent' (no ringtone).
-                // preference.setSummary(R.string.pref_ringtone_silent);
-            } else {
-                Ringtone ringtone = RingtoneManager.getRingtone(
-                        preference.getContext(), Uri.parse(stringValue));
-
-                if (ringtone == null) {
-                    // Clear the summary if there was a lookup error.
-                    //preference.setSummary(R.string.summary_choose_ringtone);
-                } else {
-                    // Set the summary to reflect the new ringtone display
-                    // name.
-                    String name = ringtone.getTitle(preference.getContext());
-                    preference.setSummary(name);
-                }
-            }
         } else if (preference instanceof EditTextPreference) {
-            if (preference.getKey().equals("key_phone_number")) {
-                if(stringValue.trim().length()>0){
-                    preference.setSummary(stringValue);
-                }else{
-                    preference.setSummary("Enter phone number");
-                }
-            } else if (preference.getKey().equals("key_username")) {
-                if(stringValue.trim().length()>0){
-                    preference.setSummary(stringValue);
-                }else{
-                    preference.setSummary("Username");
-                }
-            } else if (preference.getKey().equals("key_email_address")) {
-                if(stringValue.trim().length()>0){
-                    preference.setSummary(stringValue);
-                }else{
-                    preference.setSummary("E-mail address");
-                }
-            } else if (preference.getKey().equals("key_email_login")) {
-                if(stringValue.trim().length()>0){
-                    preference.setSummary(stringValue);
-                }else{
-                    preference.setSummary("E-mail login");
-                }
-            } else if (preference.getKey().equals("key_email_password")) {
-                final int passwordLength = stringValue.length();
-                if(passwordLength >0) {
-                    StringBuilder summary = new StringBuilder();
-                    for (int i = 0; i < passwordLength; i++) {
-                        summary.append("*");
+            switch (preference.getKey()) {
+                case "key_phone_number":
+                    if (stringValue.trim().length() > 0) {
+                        preference.setSummary(stringValue);
+                    } else {
+                        preference.setSummary("Enter phone number");
                     }
-                    preference.setSummary(summary);
-                }else{
-                    preference.setSummary("E-mail password");
-                }
+                    break;
+                case "key_username":
+                    if (stringValue.trim().length() > 0) {
+                        preference.setSummary(stringValue);
+                    } else {
+                        preference.setSummary("Username");
+                    }
+                    break;
+                case "key_email_address":
+                    if (stringValue.trim().length() > 0) {
+                        preference.setSummary(stringValue);
+                    } else {
+                        preference.setSummary("E-mail address");
+                    }
+                    break;
+                case "key_email_login":
+                    if (stringValue.trim().length() > 0) {
+                        preference.setSummary(stringValue);
+                    } else {
+                        preference.setSummary("E-mail login");
+                    }
+                    break;
+                case "key_email_password":
+                    final int passwordLength = stringValue.length();
+                    if (passwordLength > 0) {
+                        StringBuilder summary = new StringBuilder();
+                        for (int i = 0; i < passwordLength; i++) {
+                            summary.append("*");
+                        }
+                        preference.setSummary(summary);
+                    } else {
+                        preference.setSummary("E-mail password");
+                    }
+                    break;
             }
         } else if (preference instanceof NumberPickerPreference) {
 
@@ -112,6 +86,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // load settings fragment
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MainPreferenceFragment()).commit();

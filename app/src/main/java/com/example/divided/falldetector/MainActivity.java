@@ -1,7 +1,6 @@
 package com.example.divided.falldetector;
 
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +21,6 @@ import android.widget.Button;
 import com.balysv.materialripple.MaterialRippleLayout;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
             ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
         }
     };
-
+    UserSettings userSettings;
+    PermissionsManager permissionsManager;
     TimeCounter timeCounter;
     long startTime = 0;
     Handler timerHandler = new Handler();
@@ -87,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.e("MainActivity", "onCreate()");
         setContentView(R.layout.activity_main);
-        UserSettings userSettings = new UserSettings(this);
+        userSettings = new UserSettings(this);
+        permissionsManager = new PermissionsManager(this);
 
 
         Toolbar toolbar = findViewById(R.id.tool_bar);
@@ -111,31 +111,40 @@ public class MainActivity extends AppCompatActivity {
                 .rippleRoundedCorners(150)
                 .create();
 
+        permissionsManager.requestPermissions();
+
         mStartStopServiceButton.setOnClickListener(v -> {
-            if (userSettings.verify()) {
-                mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
-                if (SignalService.isServiceRunning(this, SignalService.class)) {
-                    stopService(new Intent(this, SignalService.class));
+
+            if (permissionsManager.checkAllPermissions()) {
+                if (userSettings.verifySettings()) {
+                    mStartStopServiceButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
+                    if (SignalService.isServiceRunning(this, SignalService.class)) {
+                        stopService(new Intent(this, SignalService.class));
+                    } else {
+                        startService(new Intent(this, SignalService.class));
+                    }
                 } else {
-                    startService(new Intent(this, SignalService.class));
+                    Intent intent = new Intent(this, SettingsActivity.class);
+                    startActivity(intent);
                 }
             } else {
-                Intent intent = new Intent(this,SettingsActivity.class);
-                startActivity(intent);
+                permissionsManager.requestPermissions();
             }
         });
 
-        RxPermissions rxPermissions = new RxPermissions(this);
 
-        rxPermissions
-                .request(Manifest.permission.SEND_SMS)
+
+
+        /*rxPermissions
+                .request(Manifest.permission.SEND_SMS, Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe(granted -> {
                     if (granted) { // Always true pre-M
-
+                        Toast.makeText(this,"Permissions granted", Toast.LENGTH_SHORT).show();
                     } else {
-
+                        Toast.makeText(this,"Permissions not granted",Toast.LENGTH_SHORT).show();
                     }
-                });
+                })*/
+
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
@@ -176,8 +185,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.settings) {
-            if(SignalService.isServiceRunning(this, SignalService.class)){
-                stopService(new Intent(this,SignalService.class));
+            if (SignalService.isServiceRunning(this, SignalService.class)) {
+                stopService(new Intent(this, SignalService.class));
             }
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
@@ -196,4 +205,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }
