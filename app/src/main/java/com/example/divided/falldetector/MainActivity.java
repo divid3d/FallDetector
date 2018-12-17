@@ -30,12 +30,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final int GPS_ENABLE_REQUEST = 1;
+
     final private BroadcastReceiver mGpsSwitchStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("GPS", "SWITCHED STATE");
+            Log.e("broadcast", LocationManager.PROVIDERS_CHANGED_ACTION);
             if (intent.getAction().equals(LocationManager.PROVIDERS_CHANGED_ACTION)) {
-                if (!Utils.isGPSEnabled(context)) {
+                if (!Utils.isGPSEnabled(getApplicationContext())) {
                     showGPSDisabledDialog();
                 }
             }
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         userSettings = new UserSettings(this);
         permissionsManager = new PermissionsManager(this);
         receiverManager = new ReceiverManager(this);
-        Toolbar toolbar = findViewById(R.id.tool_bar);
+        Toolbar toolbar = findViewById(R.id.activity_main_toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
 

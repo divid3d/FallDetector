@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
     tools:context=".FallDetectedActivity">
-
+    <include
+        android:id="@+id/fall_detection_activity_toolbar"
+        layout="@layout/activity_fall_detected_toolbar" />
 
     <RelativeLayout
         android:id="@+id/timer_layout"

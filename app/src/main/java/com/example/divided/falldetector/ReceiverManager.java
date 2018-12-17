@@ -16,7 +16,7 @@ public class ReceiverManager {
     ReceiverManager(Context context) {
         this.context = context;
     }
-    
+
     public void registerReceiver(BroadcastReceiver receiver, IntentFilter intentFilter) {
         receivers.add(receiver);
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, intentFilter);

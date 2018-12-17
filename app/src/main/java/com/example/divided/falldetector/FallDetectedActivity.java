@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
@@ -51,6 +52,12 @@ public class FallDetectedActivity extends AppCompatActivity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+        Toolbar toolbar = findViewById(R.id.fall_detection_activity_toolbar);
+        setSupportActionBar(toolbar);
+
+        TextView date = findViewById(R.id.text_view_date);
+        date.setText(Utils.getCurrentDate());
 
         userSettings = new UserSettings(this);
 

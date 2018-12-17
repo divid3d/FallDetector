@@ -5,6 +5,8 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -46,5 +48,9 @@ public class Utils {
         LocationManager lm = (LocationManager)
                 mContext.getSystemService(Context.LOCATION_SERVICE);
         return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    public static String getCurrentDate(){
+        return new SimpleDateFormat("dd-MMMM HH:mm:ss").format(new Date());
     }
 }

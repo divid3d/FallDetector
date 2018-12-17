@@ -40,7 +40,7 @@
             android:name=".FallDetectedActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/SecondaryAppTheme">
+            android:theme="@style/MainAppTheme">
             <intent-filter>
                 <action android:name="example.action.ACTION_FALL_DETECTED_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />

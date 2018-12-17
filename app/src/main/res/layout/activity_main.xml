@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <include
-        android:id="@+id/tool_bar"
+        android:id="@+id/activity_main_toolbar"
         layout="@layout/activity_main_toolbar" />
 
     <com.github.mikephil.charting.charts.LineChart
@@ -22,7 +22,7 @@
         android:id="@+id/time_counter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tool_bar"
+        android:layout_below="@id/activity_main_toolbar"
         android:layout_centerHorizontal="true"
         android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
