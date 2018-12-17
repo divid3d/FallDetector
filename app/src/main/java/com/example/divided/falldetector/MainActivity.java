@@ -6,9 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +26,21 @@ import com.github.mikephil.charting.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity {
+
+    public static final int GPS_ENABLE_REQUEST = 1;
+    final private BroadcastReceiver mGpsSwitchStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("GPS", "SWITCHED STATE");
+            if (intent.getAction().equals(LocationManager.PROVIDERS_CHANGED_ACTION)) {
+                if (!Utils.isGPSEnabled(context)) {
+                    showGPSDisabledDialog();
+                }
+            }
+        }
+    };
 
     Button mStartStopServiceButton;
     LineChart chart;
@@ -40,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     };
     UserSettings userSettings;
     PermissionsManager permissionsManager;
+    ReceiverManager receiverManager;
     TimeCounter timeCounter;
     long startTime = 0;
     Handler timerHandler = new Handler();
@@ -86,10 +102,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.e("MainActivity", "onCreate()");
         setContentView(R.layout.activity_main);
+
+
         userSettings = new UserSettings(this);
         permissionsManager = new PermissionsManager(this);
-
-
+        receiverManager = new ReceiverManager(this);
         Toolbar toolbar = findViewById(R.id.tool_bar);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
@@ -103,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
         ChartUtils.setupChart(chart);
         ChartUtils.setupData(chart);
 
+        /*LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStarted, new IntentFilter("service_started"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mGpsSwitchStateReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));*/
+
         MaterialRippleLayout.on(mStartStopServiceButton)
                 .rippleColor(Color.WHITE)
                 .rippleAlpha(0.3f)
@@ -112,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         permissionsManager.requestPermissions();
+        if (!Utils.isGPSEnabled(this)) {
+            showGPSDisabledDialog();
+        }
 
         mStartStopServiceButton.setOnClickListener(v -> {
 
@@ -132,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        receiverManager.registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
+        receiverManager.registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
+        receiverManager.registerReceiver(mServiceStarted, new IntentFilter("service_started"));
+        receiverManager.registerReceiver(mGpsSwitchStateReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
 
 
 
@@ -144,11 +173,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this,"Permissions not granted",Toast.LENGTH_SHORT).show();
                     }
                 })*/
-
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStarted, new IntentFilter("service_started"));
     }
 
     @Override
@@ -178,12 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.settings) {
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopService(new Intent(this, SignalService.class));
@@ -203,7 +224,37 @@ public class MainActivity extends AppCompatActivity {
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopService(new Intent(this, SignalService.class));
             }
+            /*
+            unregisterReceiver(mGpsSwitchStateReceiver);
+            unregisterReceiver(mAccelerationReceiver);
+            unregisterReceiver(mServiceStarted);
+            unregisterReceiver(mServiceStopped);*/
+            if (receiverManager != null) {
+                receiverManager.unregisterAllReceivers();
+            }
         }
     }
 
+    public void showGPSDisabledDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("GPS Disabled");
+        builder.setIcon(R.drawable.ic_person_pin_circle_black_24dp);
+        builder.setMessage("Gps is disabled, in order to use the application properly you need to enable GPS of your device");
+        builder.setPositiveButton("Enable GPS", (dialog, which) ->
+                startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), GPS_ENABLE_REQUEST)).setNegativeButton("No, Just Exit", (dialog, which) ->
+                finish()).setCancelable(false);
+        AlertDialog gpsDialog = builder.create();
+        gpsDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == GPS_ENABLE_REQUEST) {
+            if (!Utils.isGPSEnabled(this)) {
+                showGPSDisabledDialog();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

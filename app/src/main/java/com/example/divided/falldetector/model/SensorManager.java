@@ -47,16 +47,16 @@ public class SensorManager implements SensorEventListener {
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
             sensorLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             mSensorManager.registerListener(this, sensorLinearAcceleration, android.hardware.SensorManager.SENSOR_DELAY_GAME);
-        }else{
-            Log.e("Sensor Manager","Phone don't have linear acceleration sensor");
+        } else {
+            Log.e("Sensor Manager", "Phone don't have linear acceleration sensor");
             success = false;
         }
 
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
             sensorGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             mSensorManager.registerListener(this, sensorGyroscope, android.hardware.SensorManager.SENSOR_DELAY_GAME);
-        }else{
-            Log.e("Sensor Manager","Phone don't have gyroscope sensor");
+        } else {
+            Log.e("Sensor Manager", "Phone don't have gyroscope sensor");
             success = false;
         }
 
@@ -64,16 +64,16 @@ public class SensorManager implements SensorEventListener {
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null) {
             sensorMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
             mSensorManager.registerListener(this, sensorMagneticField, android.hardware.SensorManager.SENSOR_DELAY_GAME);
-        }else{
-            Log.e("Sensor Manager","Phone don't have magnetic field sensor");
+        } else {
+            Log.e("Sensor Manager", "Phone don't have magnetic field sensor");
             success = false;
         }
 
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null) {
             sensorRotationVector = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             mSensorManager.registerListener(this, sensorRotationVector, android.hardware.SensorManager.SENSOR_DELAY_GAME);
-        }else{
-            Log.e("Sensor Manager","Phone don't have rotation vector sensor");
+        } else {
+            Log.e("Sensor Manager", "Phone don't have rotation vector sensor");
             success = false;
         }
 
