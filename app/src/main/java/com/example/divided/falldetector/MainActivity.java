@@ -34,9 +34,11 @@ public class MainActivity extends AppCompatActivity {
     final private BroadcastReceiver mGpsSwitchStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("broadcast", LocationManager.PROVIDERS_CHANGED_ACTION);
             if (intent.getAction().equals(LocationManager.PROVIDERS_CHANGED_ACTION)) {
-                if (!Utils.isGPSEnabled(getApplicationContext())) {
+                if (!Utils.isGPSEnabled(context)) {
+                    if (SignalService.isServiceRunning(context, SignalService.class)) {
+                        stopService(new Intent(context, SignalService.class));
+                    }
                     showGPSDisabledDialog();
                 }
             }
@@ -45,15 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
     Button mStartStopServiceButton;
     LineChart chart;
+
     final private BroadcastReceiver mAccelerationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final float modVal = (float) intent.getDoubleExtra("accMod", 0);
-            final float timestamp = (float) intent.getDoubleExtra("timestamp", 0);
-            ChartPoint chartPoint = new ChartPoint(modVal, timestamp);
+            ChartPoint chartPoint = new ChartPoint(modVal, 0);
             ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
         }
     };
+
     UserSettings userSettings;
     PermissionsManager permissionsManager;
     ReceiverManager receiverManager;
@@ -162,18 +165,6 @@ public class MainActivity extends AppCompatActivity {
         receiverManager.registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
         receiverManager.registerReceiver(mServiceStarted, new IntentFilter("service_started"));
         receiverManager.registerReceiver(mGpsSwitchStateReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
-
-
-
-        /*rxPermissions
-                .request(Manifest.permission.SEND_SMS, Manifest.permission.ACCESS_FINE_LOCATION)
-                .subscribe(granted -> {
-                    if (granted) { // Always true pre-M
-                        Toast.makeText(this,"Permissions granted", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this,"Permissions not granted",Toast.LENGTH_SHORT).show();
-                    }
-                })*/
     }
 
     @Override

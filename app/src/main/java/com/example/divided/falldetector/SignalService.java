@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -59,7 +58,7 @@ public class SignalService extends Service implements com.example.divided.fallde
         }
         if (isForegroundStarted) {
             notificationManager.cancel(NOTIFICATION_ID);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("service_stopped"));
+            sendBroadcast(new Intent("service_stopped"));
             Toast.makeText(this, "Fall detection is disabled", Toast.LENGTH_LONG).show();
         }
         buffer.clear();
@@ -94,28 +93,11 @@ public class SignalService extends Service implements com.example.divided.fallde
                 showNotification();
                 Algorithm.init();
                 Toast.makeText(this, "Fall detection is enabled", Toast.LENGTH_SHORT).show();
-                LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("service_started"));
+                sendBroadcast(new Intent("service_started"));
             }
         }
         return START_STICKY;
     }
-
-
-
-    /*@Override
-    public void onTaskRemoved(Intent rootIntent){
-        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
-        restartServiceIntent.setPackage(getPackageName());
-
-        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        alarmService.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 1000,
-                restartServicePendingIntent);
-
-        super.onTaskRemoved(rootIntent);
-    }*/
 
     private void startAlarmActivity() {
         Log.e("SignalService", "Fall detected");

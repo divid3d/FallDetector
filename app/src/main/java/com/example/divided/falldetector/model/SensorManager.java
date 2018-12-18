@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class SensorManager implements SensorEventListener {
@@ -85,10 +84,10 @@ public class SensorManager implements SensorEventListener {
         switch (event.sensor.getType()) {
             case Sensor.TYPE_LINEAR_ACCELERATION:
                 if ((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000.0f >= mSaplingMillis) {
-                    //Log.e("Sensor period",String.valueOf((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000.0f)+" ms");
-                    //Log.e("Sensor freq",String.valueOf(1/((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000000.0f))+" Hz");
+                    Log.e("Sensor period",String.valueOf((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000.0f)+" ms");
+                    Log.e("Sensor freq",String.valueOf(1/((event.timestamp - lastLinearAccelerationSensorTimestamp) / 1000000000.0f))+" Hz");
                     LinearAccelerationData data = new LinearAccelerationData(event.values[0], event.values[1], event.values[2], event.timestamp);
-                    sendMessageToActivity(data.getModule(), data.getTimestamp());
+                    sendMessageToActivity(data.getModule());
                     if (mListener != null) {
                         mListener.onNewSensorData(new SensorData(data, SensorData.SensorType.SENSOR_LINEAR_ACCELERATION));
                     }
@@ -130,11 +129,10 @@ public class SensorManager implements SensorEventListener {
 
     }
 
-    private void sendMessageToActivity(double accMod, double timestamp) {
+    private void sendMessageToActivity(double accMod) {
         Intent intent = new Intent("current_acceleration_data");
         intent.putExtra("accMod", accMod);
-        intent.putExtra("timestamp", timestamp);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+        mContext.sendBroadcast(intent);
     }
 
     public interface OnSensorDataListener {

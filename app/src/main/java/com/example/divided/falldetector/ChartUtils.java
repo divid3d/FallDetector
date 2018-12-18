@@ -12,7 +12,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 public class ChartUtils {
 
-    private static final int MAX_CHART_POINTS = 200;
+    private static final int MAX_CHART_POINTS = 256;
 
     public static void setupChart(LineChart lineChart) {
         lineChart.getDescription().setEnabled(false);
@@ -22,15 +22,9 @@ public class ChartUtils {
         lineChart.setScaleEnabled(true);
         lineChart.setDrawGridBackground(false);
         lineChart.setViewPortOffsets(0, 0, 0, 0);
-        //lineChart.setAutoScaleMinMaxEnabled(true);
-        //lineChart.getXAxis().setDrawLabels(false);
         lineChart.getXAxis().setEnabled(false);
         lineChart.getAxisRight().setEnabled(false);
         lineChart.getAxisLeft().setEnabled(false);
-        //lineChart.getAxisLeft().setAxisMinimum(min);
-        //lineChart.getAxisLeft().setAxisMaximum(max);
-        //lineChart.getAxisLeft().setTypeface(Typeface.createFromAsset(this.getAssets(), "product_sans_bold.ttf"));
-        //lineChart.getAxisLeft().enableGridDashedLine(8f, 8f, 0);
     }
 
     private static LineDataSet createSet(@ColorInt int color) {
@@ -38,7 +32,7 @@ public class ChartUtils {
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColors(ColorTemplate.VORDIPLOM_COLORS[0]);
-        set.setLineWidth(1.25f);
+        set.setLineWidth(1f);
         set.setColor(color);
         set.setDrawCircles(false);
         set.setDrawValues(false);
@@ -71,7 +65,11 @@ public class ChartUtils {
             if (dataCount >= MAX_CHART_POINTS) {
                 set.removeFirst();
             }
-            data.addEntry(new Entry(point.getTimeStamp(), point.getValue()), 0);
+            if(set.getEntryCount() == 0) {
+                data.addEntry(new Entry(0, point.getValue()), 0);
+            }else{
+                data.addEntry(new Entry(set.getEntryForIndex(set.getEntryCount()-1).getX()+1,point.getValue()),0);
+            }
             data.notifyDataChanged();
             lineChart.notifyDataSetChanged();
             lineChart.moveViewToX(data.getEntryCount());
@@ -82,5 +80,4 @@ public class ChartUtils {
         LineData data = new LineData();
         lineChart.setData(data);
     }
-
 }
