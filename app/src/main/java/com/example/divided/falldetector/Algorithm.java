@@ -127,7 +127,7 @@ public class Algorithm {
     }
 
     private static boolean detectPeak(double totalAcceleration, double verticalAcceleration, double accelerationRatio) {
-        return totalAcceleration >= TOTAL_ACC_THRESHOLD && verticalAcceleration >= VERTICAL_ACC_THRESHOLD && accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRatio <= ACC_COMPARISION_THRESHOLD_HIGH  ;
+        return totalAcceleration >= TOTAL_ACC_THRESHOLD && verticalAcceleration >= VERTICAL_ACC_THRESHOLD && accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW && accelerationRatio <= ACC_COMPARISION_THRESHOLD_HIGH;
     }
 
     private static boolean detectLying(double totalAcceleration, double verticalAcceleration) {

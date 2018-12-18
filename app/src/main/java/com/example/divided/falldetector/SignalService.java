@@ -22,8 +22,8 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener {
 
-    private final double SAMPLING_PERIOD = 40.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
-    private final int BUFFER_SIZE = 200;
+    private final double SAMPLING_PERIOD = 20.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
+    private final int BUFFER_SIZE = 400;
     private final int NOTIFICATION_ID = 1;
     private final String CHANEL_ID = "001";
     NotificationManager notificationManager;
