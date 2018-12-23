@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             final float modVal = (float) intent.getDoubleExtra("accMod", 0);
             ChartPoint chartPoint = new ChartPoint(modVal, 0);
-            ChartUtils.addEntry(chartPoint, chart, Color.WHITE);
+            ChartUtils.addEntry(chartPoint, chart, Color.WHITE,true,true);
         }
     };
 
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
         chart = findViewById(R.id.chart);
 
-        ChartUtils.setupChart(chart);
+        ChartUtils.setupChart(this,chart,false,true);
         ChartUtils.setupData(chart);
 
         /*LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));

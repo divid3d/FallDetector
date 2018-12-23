@@ -36,6 +36,8 @@ public class SensorDataPack {
                     break;
             }
         }
+
+
         /*
         for (int i = 0; i < linearAccelerationData.size(); i++) {
             Log.e("Linear acceleration", "Index:\t" + i + "\tMod:\t" + linearAccelerationData.get(i).getModule() + "\tTimestamp:\t" + linearAccelerationData.get(i).getTimestamp());
@@ -74,6 +76,42 @@ public class SensorDataPack {
                 + "\tGyro:\t" + String.format("%.3f", (float) gyroTime)
                 + "\tMagn:\t" + String.format("%.3f", (float) magnTime)
                 + "\tRot:\t" + String.format("%.3f", (float) rotTime));*/
+
+    }
+
+    public SensorDataPack(List<SensorData> buffer) {
+        for (SensorData sensorData : buffer) {
+            switch (sensorData.getSensorType()) {
+                case SENSOR_LINEAR_ACCELERATION:
+                    linearAccelerationData.add((LinearAccelerationData) sensorData.getData());
+                    break;
+
+                case SENSOR_GYROSCOPE:
+                    gyroscopeData.add((GyroscopeData) sensorData.getData());
+                    break;
+
+                case SENSOR_MAGNETIC_FIELD:
+                    magneticFieldData.add((MagneticFieldData) sensorData.getData());
+                    break;
+
+                case SENSOR_ROTATION_VECTOR:
+                    rotationVectorData.add((RotationVectorData) sensorData.getData());
+                    break;
+            }
+        }
+
+        /*Collections.sort(linearAccelerationData,(d1,d2)->Long.compare(d1.getTimestamp(),d2.getTimestamp()));
+        Collections.sort(gyroscopeData,(d1,d2)->Long.compare(d1.getTimestamp(),d2.getTimestamp()));
+        Collections.sort(magneticFieldData,(d1,d2)->Long.compare(d1.getTimestamp(),d2.getTimestamp()));
+        Collections.sort(rotationVectorData,(d1,d2)->Long.compare(d1.getTimestamp(),d2.getTimestamp()));*/
+
+        Log.e("Sensor data pack", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
+
+        if (!areListsSameSize()) {
+            normalizeDataPack();
+        } else {
+            packSize = linearAccelerationData.size();
+        }
 
     }
 

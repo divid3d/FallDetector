@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -28,6 +30,9 @@ import com.balysv.materialripple.MaterialRippleLayout;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+
+import java.io.IOException;
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -83,11 +88,12 @@ public class FallDetectedActivity extends AppCompatActivity {
         client.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
                 currentLocation = location;
+                getAddress(currentLocation.getLatitude(),currentLocation.getLongitude());
                 Toast.makeText(getApplicationContext(), location.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        SoundHelper soundHelper = new SoundHelper(this);
+        SoundHelper soundHelper = new SoundHelper(this,R.raw.alarm_1,true);
 
 
         mButtonCancel.setOnClickListener(v -> {
@@ -98,7 +104,7 @@ public class FallDetectedActivity extends AppCompatActivity {
                     cancelVibration(vibrator);
                 }
                 if (userSettings.isAlarmSoundEnabled()) {
-                    soundHelper.stopAlarmSound();
+                    soundHelper.stopSound();
                 }
                 Toast.makeText(getApplicationContext(), "Counting stopped by user", Toast.LENGTH_SHORT).show();
                 finish();
@@ -114,7 +120,7 @@ public class FallDetectedActivity extends AppCompatActivity {
         }
 
         if (userSettings.isAlarmSoundEnabled()) {
-            soundHelper.startAlarmSound();
+            soundHelper.startSound();
         }
         countDownTimer = new CountDownTimer(userSettings.getAlarmDuration() * 1000, 1) {
 
@@ -133,7 +139,7 @@ public class FallDetectedActivity extends AppCompatActivity {
                     cancelVibration(vibrator);
                 }
                 if (userSettings.isAlarmSoundEnabled()) {
-                    soundHelper.stopAlarmSound();
+                    soundHelper.stopSound();
                 }
                 //sendSMS(new String[]{"732921078"});
                 //sendEmail(new String[]{"woojciechczop@gmail.com", "n.kozlowska@vp.pl"});
@@ -241,5 +247,27 @@ public class FallDetectedActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         mButtonCancel.callOnClick();
+    }
+
+    public void getAddress(double lat, double lng) {
+        Geocoder geocoder = new Geocoder(getApplicationContext(), getResources().getConfiguration().locale);
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            Address obj = addresses.get(0);
+            String add = obj.getAddressLine(0);
+            add = add + "\n" + obj.getCountryName();
+            add = add + "\n" + obj.getCountryCode();
+            add = add + "\n" + obj.getAdminArea();
+            add = add + "\n" + obj.getPostalCode();
+            add = add + "\n" + obj.getSubAdminArea();
+            add = add + "\n" + obj.getLocality();
+            add = add + "\n" + obj.getSubThoroughfare();
+
+            Log.e("IGA", "Address" + add);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

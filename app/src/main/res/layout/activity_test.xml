@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context=".TestActivity">
+
+    <include
+        android:id="@+id/test_activity_toolbar"
+        layout="@layout/activity_test_toolbar" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_signals"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/test_activity_toolbar"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/signal_item" />
+
+    <TextView
+        android:scrollbars="vertical"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:background="@android:color/transparent"
+        android:fontFamily="@font/product_sans_regular"
+        android:layout_margin="8dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/recycler_view_signals"
+        android:layout_above="@id/button_test_start"
+        android:id="@+id/text_view_log"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/button_test_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+       android:layout_margin="16dp"
+        android:background="@drawable/button_cancel_background"
+        android:fontFamily="@font/product_sans_regular"
+        android:gravity="center"
+        android:text="Start test"
+        android:textColor="@android:color/white" />
+</RelativeLayout>

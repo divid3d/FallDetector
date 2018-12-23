@@ -19,6 +19,9 @@ import com.example.divided.falldetector.model.SensorDataPack;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener {
 
@@ -128,7 +131,8 @@ public class SignalService extends Service implements com.example.divided.fallde
         buffer.add(sensorData);
         if (buffer.isAtFullCapacity()) {
             final SensorDataPack sensorDataPack = new SensorDataPack(buffer);
-            if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
+            List<Float> chuj = new ArrayList<>();
+            if (Algorithm.fallDetectionAlgorithm(sensorDataPack,chuj)) {
                 stopSelf();
                 startAlarmActivity();
             }

@@ -1,6 +1,9 @@
 package com.example.divided.falldetector;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
+import android.support.v4.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
@@ -14,20 +17,29 @@ public class ChartUtils {
 
     private static final int MAX_CHART_POINTS = 256;
 
-    public static void setupChart(LineChart lineChart) {
+    public static void setupChart(Context context, LineChart lineChart, boolean enableYAxis, boolean offsetDisable) {
         lineChart.getDescription().setEnabled(false);
         lineChart.getLegend().setEnabled(false);
         lineChart.setTouchEnabled(false);
         lineChart.setPinchZoom(false);
         lineChart.setScaleEnabled(true);
         lineChart.setDrawGridBackground(false);
-        lineChart.setViewPortOffsets(0, 0, 0, 0);
+        if (offsetDisable) {
+            lineChart.setViewPortOffsets(0, 0, 0, 0);
+        } else{
+            lineChart.getAxisLeft().setTextColor(Color.WHITE);
+            lineChart.getAxisLeft().setTypeface(ResourcesCompat.getFont(context,R.font.product_sans_regular));
+        }
         lineChart.getXAxis().setEnabled(false);
+        lineChart.getAxisLeft().setEnabled(enableYAxis);
+        if (enableYAxis) {
+            lineChart.getAxisLeft().enableGridDashedLine(40f, 40f, 0);
+            lineChart.getAxisLeft().setAxisLineColor(Color.WHITE);
+        }
         lineChart.getAxisRight().setEnabled(false);
-        lineChart.getAxisLeft().setEnabled(false);
     }
 
-    private static LineDataSet createSet(@ColorInt int color) {
+    private static LineDataSet createSet(@ColorInt int color, boolean setFill) {
         LineDataSet set = new LineDataSet(null, null);
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -36,7 +48,7 @@ public class ChartUtils {
         set.setColor(color);
         set.setDrawCircles(false);
         set.setDrawValues(false);
-        set.setDrawFilled(true);
+        set.setDrawFilled(setFill);
         set.setFillAlpha(32);
         set.setFillColor(color);
 
@@ -51,24 +63,24 @@ public class ChartUtils {
         }
     }
 
-    public static void addEntry(ChartPoint point, LineChart lineChart, @ColorInt int color) {
+    public static void addEntry(ChartPoint point, LineChart lineChart, @ColorInt int color, boolean maxChartPointsSet, boolean setFill) {
         LineData data = lineChart.getData();
 
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
 
             if (set == null) {
-                set = createSet(color);
+                set = createSet(color, setFill);
                 data.addDataSet(set);
             }
             final int dataCount = lineChart.getData().getEntryCount();
-            if (dataCount >= MAX_CHART_POINTS) {
+            if (dataCount >= MAX_CHART_POINTS && maxChartPointsSet) {
                 set.removeFirst();
             }
-            if(set.getEntryCount() == 0) {
+            if (set.getEntryCount() == 0) {
                 data.addEntry(new Entry(0, point.getValue()), 0);
-            }else{
-                data.addEntry(new Entry(set.getEntryForIndex(set.getEntryCount()-1).getX()+1,point.getValue()),0);
+            } else {
+                data.addEntry(new Entry(set.getEntryForIndex(set.getEntryCount() - 1).getX() + 1, point.getValue()), 0);
             }
             data.notifyDataChanged();
             lineChart.notifyDataSetChanged();

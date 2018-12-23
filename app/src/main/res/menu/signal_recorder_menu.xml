@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/clear_charts"
+        android:icon="@drawable/ic_baseline_clear_24px"
+        android:orderInCategory="3"
+        android:title="Edit"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/run_pause"
+        android:icon="@drawable/ic_baseline_pause_24px"
+        android:orderInCategory="2"
+        android:title="Start/pause"
+        app:showAsAction="always"
+    />
+
+    <item
+        android:id="@+id/save"
+        android:icon="@drawable/ic_baseline_save_24px"
+        android:orderInCategory="1"
+        android:title="save"
+        app:showAsAction="always"
+        />
+
+</menu>
