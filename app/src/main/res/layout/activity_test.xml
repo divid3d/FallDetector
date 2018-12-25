@@ -6,43 +6,81 @@
     android:background="@drawable/gradient_background"
     tools:context=".TestActivity">
 
-    <include
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/test_activity_toolbar"
-        layout="@layout/activity_test_toolbar" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:elevation="4dp"
+        android:minHeight="?attr/actionBarSize">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_view_test_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="0/0"
+                android:textColor="@android:color/white"
+                android:typeface="monospace" />
+
+            <ProgressBar
+                android:layout_centerVertical="true"
+                android:id="@+id/toolbar_progress_bar"
+                style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/text_view_test_count"
+                android:progressTint="#FFFFFF"
+                android:progressBackgroundTint="@android:color/darker_gray"
+                android:progress="0"
+                android:max="100"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_signals"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/button_test_start"
         android:layout_below="@id/test_activity_toolbar"
-        android:layout_margin="8dp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layoutAnimation="@anim/layout_animation_fall_down"
         android:orientation="vertical"
+        android:scrollbarThumbVertical="@drawable/recycler_view_scrollbar"
         android:scrollbars="vertical"
         tools:listitem="@layout/signal_item" />
 
-    <TextView
-        android:scrollbars="vertical"
-        android:textSize="12sp"
-        android:textColor="@android:color/white"
-        android:background="@android:color/transparent"
-        android:fontFamily="@font/product_sans_regular"
-        android:layout_margin="8dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/recycler_view_signals"
-        android:layout_above="@id/button_test_start"
-        android:id="@+id/text_view_log"
+    <ProgressBar
+        android:id="@+id/progress_bar_test"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/recycler_view_signals" />
 
     <Button
         android:id="@+id/button_test_start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-       android:layout_margin="16dp"
+        android:layout_margin="16dp"
         android:background="@drawable/button_cancel_background"
         android:fontFamily="@font/product_sans_regular"
         android:gravity="center"
         android:text="Start test"
         android:textColor="@android:color/white" />
+
 </RelativeLayout>

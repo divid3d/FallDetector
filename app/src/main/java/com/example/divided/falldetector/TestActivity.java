@@ -4,14 +4,16 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.balysv.materialripple.MaterialRippleLayout;
@@ -21,25 +23,29 @@ import com.example.divided.falldetector.model.MagneticFieldData;
 import com.example.divided.falldetector.model.RotationVectorData;
 import com.example.divided.falldetector.model.SensorData;
 import com.example.divided.falldetector.model.SensorDataPack;
+import com.example.divided.falldetector.model.TestSignal;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class TestActivity extends AppCompatActivity {
 
     static List<Float> vAccel = new ArrayList<>();
     Button mStartTest;
-    List<File> paths = new ArrayList<>();
+    List<TestSignal> signals = new ArrayList<>();
+    List<TestAlgorithmTask> testAlgorithmTasks = new ArrayList<>();
     RecyclerView mRecyclerView;
     SignalAdapter mSignalsAdapter;
-    TextView mLog;
-    private boolean isTestRunning = false;
+    TextView mTestCount;
+    ProgressBar mTestProgress;
 
     private static SensorDataPack loadSignal(File path) {
         List<SensorData> sensorData = new ArrayList<>();
@@ -70,19 +76,23 @@ public class TestActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mStartTest = findViewById(R.id.button_test_start);
-        mLog = findViewById(R.id.text_view_log);
-        mLog.setMovementMethod(new ScrollingMovementMethod());
-        mLog.setVerticalScrollBarEnabled(true);
         mRecyclerView = findViewById(R.id.recycler_view_signals);
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        DividerItemDecoration itemDivider = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        itemDivider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.recycler_view_divider)));
+        mRecyclerView.addItemDecoration(itemDivider);
+        mTestCount = findViewById(R.id.text_view_test_count);
+        mTestProgress = findViewById(R.id.toolbar_progress_bar);
 
-        paths = loadSignalsSignatures();
-        Collections.sort(paths, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+        signals = loadSignalsSignatures();
 
-        mSignalsAdapter = new SignalAdapter(paths);
+        Collections.sort(signals, (s1, s2) -> s1.getPath().getName().compareTo(s2.getPath().getName()));
+
+        mSignalsAdapter = new SignalAdapter(signals);
         mRecyclerView.setAdapter(mSignalsAdapter);
-        mSignalsAdapter.notifyDataSetChanged();
+        resetResults();
 
         MaterialRippleLayout.on(mStartTest)
                 .rippleColor(Color.WHITE)
@@ -92,49 +102,105 @@ public class TestActivity extends AppCompatActivity {
                 .rippleRoundedCorners(2)
                 .create();
 
-
         mStartTest.setOnClickListener(v -> {
-            if (!isTestRunning) {
-                startAlgorithmTest(paths);
+            if (!isTestRunning(testAlgorithmTasks)) {
+                startAlgorithmTest();
+                mStartTest.setText("STOP TEST");
+            } else {
+                stopTest();
+                mStartTest.setText("START TEST");
             }
         });
     }
 
-    private void startAlgorithmTest(List<File> paths) {
-        isTestRunning = true;
-        for (File path : paths) {
-            new TestAlgorithmTask().execute(path);
+    private void startAlgorithmTest() {
+        resetResults();
+        TestAlgorithmTask.initCounter();
+        testAlgorithmTasks.clear();
+        for (int i = 0; i < signals.size(); i++) {
+            testAlgorithmTasks.add(new TestAlgorithmTask(this));
+            testAlgorithmTasks.get(i).execute(signals.get(i).getPath());
         }
-        isTestRunning = false;
     }
 
-    private List<File> loadSignalsSignatures() {
-        List<File> paths = new ArrayList<>();
+    private List<TestSignal> loadSignalsSignatures() {
+        List<TestSignal> signals = new ArrayList<>();
         File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "Acceleration signals");
         Log.e("directory exists", String.valueOf(directory.exists()));
         for (File f : directory.listFiles()) {
             if (f.isFile())
-                paths.add(f);
+                signals.add(new TestSignal(f, "----"));
         }
-        return paths;
+        return signals;
     }
 
-    private class TestAlgorithmTask extends AsyncTask<File, String, Boolean> {
+    private void resetResults() {
+        for (int i = 0; i < mSignalsAdapter.getItemCount(); i++) {
+            signals.get(i).setTestResult("----");
+        }
+        mSignalsAdapter.notifyDataSetChanged();
+        mTestCount.setText("0/" + String.valueOf(mSignalsAdapter.getItemCount()));
+        mTestProgress.setMax(signals.size());
+        mTestProgress.setProgress(0);
+    }
+
+    private boolean isTestRunning(List<TestAlgorithmTask> tasks) {
+        for (TestAlgorithmTask task : tasks) {
+            if (task.getStatus() == AsyncTask.Status.RUNNING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void stopTest() {
+        for (TestAlgorithmTask task : testAlgorithmTasks) {
+            task.cancel(false);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopTest();
+    }
+
+    private static class TestAlgorithmTask extends AsyncTask<File, String, Boolean> {
+        private static int counter;
+        private static WeakReference<TestActivity> mActivityRef;
+
+        TestAlgorithmTask(TestActivity activity) {
+            mActivityRef = new WeakReference<>(activity);
+        }
+
+        static void initCounter() {
+            counter = 0;
+        }
 
         protected Boolean doInBackground(File... paths) {
             final SensorDataPack data = loadSignal(paths[0]);
             Algorithm.init();
             boolean isFallDetected = Algorithm.fallDetectionAlgorithm(data, vAccel);
             Log.e("Test", paths[0].getName() + "\t" + String.valueOf(isFallDetected));
-            publishProgress(paths[0].getName() + "\t->\t" + String.valueOf(isFallDetected) + "\n");
+            publishProgress(String.valueOf(isFallDetected));
             return null;
         }
 
         protected void onProgressUpdate(String... progress) {
-            mLog.append(progress[0]);
+            if (mActivityRef.get() != null) {
+                mActivityRef.get().signals.get(counter).setTestResult(progress[0]);
+                mActivityRef.get().mRecyclerView.scrollToPosition(counter);
+                mActivityRef.get().mSignalsAdapter.notifyItemChanged(counter);
+                mActivityRef.get().runOnUiThread(() -> mActivityRef.get().mTestProgress.setProgress(counter +1));
+                mActivityRef.get().mTestCount.setText(String.valueOf(counter + 1) + "/" + String.valueOf(mActivityRef.get().mSignalsAdapter.getItemCount()));
+                if (counter + 1 == mActivityRef.get().mSignalsAdapter.getItemCount()) {
+                    mActivityRef.get().mStartTest.setText("START TEST");
+                }
+            }
         }
 
         protected void onPostExecute(Boolean result) {
+            counter++;
         }
     }
 }
