@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
     tools:context=".FallDetectedActivity">
+
     <include
         android:id="@+id/fall_detection_activity_toolbar"
         layout="@layout/activity_fall_detected_toolbar" />
@@ -74,15 +75,16 @@
         android:id="@+id/communicate_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/timer_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_margin="16dp"
+        android:gravity="center"
         android:visibility="gone">
 
         <TextSwitcher
             android:id="@+id/ts_communicate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:inAnimation="@android:anim/fade_in"
             android:outAnimation="@android:anim/fade_out">
 
@@ -90,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/product_sans_regular"
-                android:gravity="start"
+                android:gravity="center"
                 android:textColor="@android:color/white"
                 android:textSize="25sp" />
 
@@ -98,20 +100,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/product_sans_regular"
-                android:gravity="start"
+                android:gravity="center"
                 android:textColor="@android:color/white"
                 android:textSize="25sp" />
 
 
         </TextSwitcher>
 
-
-        <ProgressBar
-            android:id="@+id/progress_indicator"
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true" />
+            android:layout_below="@id/ts_communicate"
+            android:background="@drawable/button_cancel_background"
+            android:fontFamily="@font/product_sans_regular"
+            android:text="Back"
+            android:inAnimation="@android:anim/fade_in"
+            android:outAnimation="@android:anim/fade_out"
+            android:textColor="@android:color/white" />
 
     </RelativeLayout>
 

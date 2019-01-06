@@ -10,10 +10,8 @@ public class SoundHelper {
     private MediaPlayer mMediaPlayer;
 
     SoundHelper(Context context, @RawRes int sound,boolean looping) {
-
         if (mContext == null) {
             mContext = context;
-
             mMediaPlayer = MediaPlayer.create(mContext, sound);
             mMediaPlayer.setLooping(looping);
         }
@@ -34,7 +32,7 @@ public class SoundHelper {
         }
     }
 
-    public void relese(){
+    public void release(){
         if(mMediaPlayer != null){
             mMediaPlayer.stop();
             mMediaPlayer.release();

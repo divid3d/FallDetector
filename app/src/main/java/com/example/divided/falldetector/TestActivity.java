@@ -39,13 +39,13 @@ import java.util.Objects;
 public class TestActivity extends AppCompatActivity {
 
     static List<Float> vAccel = new ArrayList<>();
-    Button mStartTest;
-    List<TestSignal> signals = new ArrayList<>();
-    List<TestAlgorithmTask> testAlgorithmTasks = new ArrayList<>();
-    RecyclerView mRecyclerView;
-    SignalAdapter mSignalsAdapter;
-    TextView mTestCount;
-    ProgressBar mTestProgress;
+    private Button mStartTest;
+    private List<TestSignal> signals = new ArrayList<>();
+    private List<TestAlgorithmTask> testAlgorithmTasks = new ArrayList<>();
+    private RecyclerView mRecyclerView;
+    private SignalAdapter mSignalsAdapter;
+    private TextView mTestCount;
+    private ProgressBar mTestProgress;
 
     private static SensorDataPack loadSignal(File path) {
         List<SensorData> sensorData = new ArrayList<>();

@@ -39,7 +39,7 @@ public class ChartUtils {
         lineChart.getAxisRight().setEnabled(false);
     }
 
-    private static LineDataSet createSet(@ColorInt int color, boolean setFill) {
+    private static  LineDataSet createSet(@ColorInt int color, boolean setFill) {
         LineDataSet set = new LineDataSet(null, null);
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -55,7 +55,7 @@ public class ChartUtils {
         return set;
     }
 
-    public static void clearChart(LineChart lineChart) {
+    public static synchronized void clearChart(LineChart lineChart) {
         if (lineChart.getData() != null) {
             lineChart.getData().clearValues();
             lineChart.notifyDataSetChanged();
@@ -63,9 +63,8 @@ public class ChartUtils {
         }
     }
 
-    public static void addEntry(ChartPoint point, LineChart lineChart, @ColorInt int color, boolean maxChartPointsSet, boolean setFill) {
+    public static synchronized void addEntry(ChartPoint point, LineChart lineChart, @ColorInt int color, boolean maxChartPointsSet, boolean setFill) {
         LineData data = lineChart.getData();
-
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
 
@@ -82,13 +81,12 @@ public class ChartUtils {
             } else {
                 data.addEntry(new Entry(set.getEntryForIndex(set.getEntryCount() - 1).getX() + 1, point.getValue()), 0);
             }
-            data.notifyDataChanged();
             lineChart.notifyDataSetChanged();
             lineChart.moveViewToX(data.getEntryCount());
         }
     }
 
-    public static void setupData(LineChart lineChart) {
+    public static  void setupData(LineChart lineChart) {
         LineData data = new LineData();
         lineChart.setData(data);
     }

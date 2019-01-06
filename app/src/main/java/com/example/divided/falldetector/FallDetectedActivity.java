@@ -20,7 +20,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
@@ -43,6 +42,7 @@ public class FallDetectedActivity extends AppCompatActivity {
     TextSwitcher mCommunicates;
     RelativeLayout mRequestCommunicate;
     Button mButtonCancel;
+    Button mButtonBack;
     CircularProgressBar mProgressBar;
     CountDownTimer countDownTimer;
     Vibrator vibrator;
@@ -72,6 +72,9 @@ public class FallDetectedActivity extends AppCompatActivity {
         mRequestCommunicate = findViewById(R.id.communicate_layout);
         mCommunicates = findViewById(R.id.ts_communicate);
         mButtonCancel = findViewById(R.id.btn_cancel);
+        mButtonBack = findViewById(R.id.btn_back);
+
+        mButtonBack.setOnClickListener(v -> finish());
 
         MaterialRippleLayout.on(mButtonCancel)
                 .rippleColor(Color.WHITE)
@@ -93,8 +96,7 @@ public class FallDetectedActivity extends AppCompatActivity {
             }
         });
 
-        SoundHelper soundHelper = new SoundHelper(this,R.raw.alarm_1,true);
-
+        SoundHelper soundHelper = new SoundHelper(this,R.raw.alarm_mp3,true);
 
         mButtonCancel.setOnClickListener(v -> {
             mButtonCancel.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
@@ -105,14 +107,13 @@ public class FallDetectedActivity extends AppCompatActivity {
                 }
                 if (userSettings.isAlarmSoundEnabled()) {
                     soundHelper.stopSound();
+                    soundHelper.release();
                 }
                 Toast.makeText(getApplicationContext(), "Counting stopped by user", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
         mProgressBar = findViewById(R.id.progress_bar);
-        ProgressBar indicator = findViewById(R.id.progress_indicator);
-        indicator.getIndeterminateDrawable().setColorFilter(Color.WHITE, android.graphics.PorterDuff.Mode.MULTIPLY);
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (userSettings.isVibrationEnabled() && vibrator != null) {
@@ -140,9 +141,10 @@ public class FallDetectedActivity extends AppCompatActivity {
                 }
                 if (userSettings.isAlarmSoundEnabled()) {
                     soundHelper.stopSound();
+                    soundHelper.release();
                 }
-                //sendSMS(new String[]{"732921078"});
-                //sendEmail(new String[]{"woojciechczop@gmail.com", "n.kozlowska@vp.pl"});
+
+
 
                 Animation cancelButtonAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
                 cancelButtonAnim.setAnimationListener(new Animation.AnimationListener() {
@@ -160,6 +162,14 @@ public class FallDetectedActivity extends AppCompatActivity {
                         Animation fadeOutAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
                         fadeOutAnim.setFillAfter(true);
                         mTextViewTimeRemaining.startAnimation(fadeOutAnim);
+                        if(userSettings.isSmsEnabled()) {
+                            sendSMS(new String[]{userSettings.getPhoneNumber()});
+                        }
+
+                        if(userSettings.isEmailEnabled()) {
+                            sendEmail(new String[]{userSettings.getEmailAddress()});
+                        }
+                        mCommunicates.setText("Help request has been send");
                     }
 
                     @Override
@@ -203,7 +213,6 @@ public class FallDetectedActivity extends AppCompatActivity {
     }
 
     private void sendSMS(String[] phoneNumbers) {
-        mCommunicates.setText("Sending SMS messages...");
         if (currentLocation != null) {
             for (String phoneNumber : phoneNumbers) {
                 final String message = "Fall alert!\n" + "My location:\n" + "Lat: " + currentLocation.getLatitude()
@@ -216,8 +225,6 @@ public class FallDetectedActivity extends AppCompatActivity {
     }
 
     private void sendEmail(String[] emailAdresses) {
-        mCommunicates.setText("Sending e-mail messages...");
-
         if (currentLocation != null) {
             final String username = "robo6666666@gmail.com";
             final String password = "asiamakota333";

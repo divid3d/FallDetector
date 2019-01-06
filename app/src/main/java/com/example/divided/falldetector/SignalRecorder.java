@@ -138,7 +138,7 @@ public class SignalRecorder extends AppCompatActivity implements DialogInterface
     protected void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListeners();
-        mSoundHelper.relese();
+        mSoundHelper.release();
 
         if (bt != null) {
             bt.stopService();
@@ -153,10 +153,17 @@ public class SignalRecorder extends AppCompatActivity implements DialogInterface
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.clear_charts:
+                if(isRunning){
+                    if(toolbarMenu!=null) {
+                        toolbarMenu.performIdentifierAction(R.id.run_pause, 0);
+                    }
+                }
                 Toast.makeText(getApplicationContext(), "Charts have been cleared", Toast.LENGTH_SHORT).show();
                 ChartUtils.clearChart(accelerationChart);
                 ChartUtils.clearChart(gyroscopeChart);
@@ -306,33 +313,33 @@ public class SignalRecorder extends AppCompatActivity implements DialogInterface
 
         switch (sensorData.getSensorType()) {
             case SENSOR_LINEAR_ACCELERATION:
-                mAccelerationSamplesCount.setText(String.valueOf(accelerationChart.getData().getEntryCount()+1));
+                mAccelerationSamplesCount.setText(String.valueOf(accelerationChart.getData().getEntryCount() + 1));
                 new ChartDrawTask(accelerationChart).execute(((LinearAccelerationData) sensorData.getData()).getModule(), (float) ((LinearAccelerationData) sensorData.getData()).getTimestamp());
                 break;
 
             case SENSOR_GYROSCOPE:
-                mGyroscopeSamplesCount.setText(String.valueOf(gyroscopeChart.getData().getEntryCount()+1));
+                mGyroscopeSamplesCount.setText(String.valueOf(gyroscopeChart.getData().getEntryCount() + 1));
                 new ChartDrawTask(gyroscopeChart).execute(((GyroscopeData) sensorData.getData()).getModule(), (float) ((GyroscopeData) sensorData.getData()).getTimestamp());
                 break;
 
             case SENSOR_MAGNETIC_FIELD:
-                mMagneticSamplesCount.setText(String.valueOf(magneticFieldChart.getData().getEntryCount()+1));
+                mMagneticSamplesCount.setText(String.valueOf(magneticFieldChart.getData().getEntryCount() + 1));
                 new ChartDrawTask(magneticFieldChart).execute(((MagneticFieldData) sensorData.getData()).getModule(), (float) ((MagneticFieldData) sensorData.getData()).getTimestamp());
                 break;
 
             case SENSOR_ROTATION_VECTOR:
-                mRotationSamplesCount.setText(String.valueOf(rotationVectorChart.getData().getEntryCount()+1));
+                mRotationSamplesCount.setText(String.valueOf(rotationVectorChart.getData().getEntryCount() + 1));
                 new ChartDrawTask(rotationVectorChart).execute(((RotationVectorData) sensorData.getData()).getX(), (float) ((RotationVectorData) sensorData.getData()).getTimestamp());
                 break;
         }
     }
 
 
-    private static class ChartDrawTask extends AsyncTask<Float, Void, Void> {
+    private class ChartDrawTask extends AsyncTask<Float, Void, Void> {
 
-        ChartPoint chartPoint;
+        private ChartPoint chartPoint;
         @SuppressLint("StaticFieldLeak")
-        LineChart chart;
+        private LineChart chart;
 
         ChartDrawTask(LineChart chart) {
             this.chart = chart;
