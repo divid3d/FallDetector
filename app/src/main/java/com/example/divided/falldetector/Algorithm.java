@@ -1,16 +1,15 @@
 package com.example.divided.falldetector;
 
+import android.hardware.SensorManager;
 import android.util.Log;
 
 import com.example.divided.falldetector.model.SensorDataPack;
-
-import java.util.List;
 
 
 public class Algorithm {
 
     private static final double TOTAL_ACC_THRESHOLD = 1.5;
-    private static final double VERTICAL_ACC_THRESHOLD = 1.2;
+    private static final double VERTICAL_ACC_THRESHOLD = 1.3;
     private static final double ACC_COMPARISION_THRESHOLD_LOW = 0.5;
     private static final double ACC_COMPARISION_THRESHOLD_HIGH = 0.85;
 
@@ -23,12 +22,11 @@ public class Algorithm {
     private static boolean isLyingDetected = false;
     private static int currentLyingSamples = 0;
     private static int samplesAfterPeakDetect = 0;
-    private static long samplesProcessed = 0;
-    private static double lastVerticalAccel = 0;
-    private static double nextVerticalAccel = 0;
+    private static double lastAccelerationModule = 0;
+    private static double nextAccelerationModule = 0;
 
 
-    synchronized public static boolean fallDetectionAlgorithm(SensorDataPack sensorDataPack, List<Float> vAccel) {
+    public static boolean fallDetectionAlgorithm(SensorDataPack sensorDataPack) {
 
 
        /* Log.e("BUFFER SIZE", "Acc:\t" + linearAccelerationData.size() + "\tGyro:\t" + gyroscopeData.size() + "\tMagn:\t" + magneticFieldData.size() + "\tRot:\t" + rotationVectorData.size());
@@ -44,21 +42,22 @@ public class Algorithm {
         /*long startTime = System.nanoTime();*/
 
         for (int i = 0; i < sensorDataPack.getPackSize(); i++) {
-            /*SensorManager.getRotationMatrix(rotationMatrix, null, sensorDataPack.getRotationVectorData().get(i).getValues(), sensorDataPack.getMagneticFieldData().get(i).getValues());
+            SensorManager.getRotationMatrix(rotationMatrix, null, sensorDataPack.getRotationVectorData().get(i).getValues(), sensorDataPack.getMagneticFieldData().get(i).getValues());
             SensorManager.getOrientation(rotationMatrix, degrees);
             thetaY = degrees[2];
-            thetaZ = degrees[0];*/
+            thetaZ = degrees[0];
 
             /*Log.e("Theta Y", String.valueOf(thetaY*(180/Math.PI))); // debug angle in degrees
             Log.e("Theta Z", String.valueOf(thetaZ*(180/Math.PI)));*/
 
 
-            //final double verticalAcceleration = calculateAccelerationNormal(sensorDataPack.getLinearAccelerationData().get(i).getX(), sensorDataPack.getLinearAccelerationData().get(i).getY(), sensorDataPack.getLinearAccelerationData().get(i).getZ(), thetaY, thetaZ);
-            final double verticalAcceleration = vAccel.get(i);
-            final double totalAcceleration = sensorDataPack.getLinearAccelerationData().get(i).getModule();
+            final double verticalAcceleration = calculateAccelerationNormal(sensorDataPack.getLinearAccelerationData().get(i).getX(),
+                    sensorDataPack.getLinearAccelerationData().get(i).getY(),
+                    sensorDataPack.getLinearAccelerationData().get(i).getZ(),
+                    thetaY, thetaZ);
+            final double accelerationModule = sensorDataPack.getLinearAccelerationData().get(i).getModule();
 
-            final double accelerationRatio = calculateAccelerationRatio(verticalAcceleration, totalAcceleration);
-            final float accelerationPercentage = (float) accelerationRatio * 100f;
+            final double accelerationRatio = calculateAccelerationRatio(verticalAcceleration, accelerationModule);
 
             /*Log.e("ALOGRITHM PROCESS", "Iteration:\t" + String.valueOf(i) + "\t" + String.format("aV:\t%.5f\t", verticalAcceleration)
                     + String.format("aT:\t%.5f\t", totalAcceleration)
@@ -66,7 +65,7 @@ public class Algorithm {
                     + String.format("Percentage:\t%.2f", accelerationPercentage));*/
 
             Log.e("ALOGRITHM PROCESS", "Iteration:\t" + String.valueOf(i) + "\t" + String.format("aV:\t%.5f\t", verticalAcceleration)
-                    + String.format("aT:\t%.5f\t", totalAcceleration));
+                    + String.format("aT:\t%.5f\t", accelerationModule));
 
 
             /*Log.e("Differances","Acc - Gyro"+String.format("%f ms",(sensorDataPack.getLinearAccelerationData().get(i).getTimestamp() - sensorDataPack.getGyroscopeData().get(i).getTimestamp())/1000000.0f)+"\n"
@@ -75,22 +74,19 @@ public class Algorithm {
 */
 
             if (i - 1 > 0) {
-                lastVerticalAccel = vAccel.get(i - 1);
+                lastAccelerationModule = sensorDataPack.getLinearAccelerationData().get(i - 1).getModule();
             }
             if (i + 1 < sensorDataPack.getPackSize()) {
-                nextVerticalAccel = vAccel.get(i + 1);
+                nextAccelerationModule = sensorDataPack.getLinearAccelerationData().get(i + 1).getModule();
             }
 
-            if (i + 1 < sensorDataPack.getPackSize()) {
-                nextVerticalAccel = vAccel.get(i + 1);
-            }
 
             if (isFallPeakDetected) {
                 samplesAfterPeakDetect++;
             }
 
-            if (detectPeak(totalAcceleration, verticalAcceleration, accelerationRatio)) {
-                if (isLocalMaximum(lastVerticalAccel, nextVerticalAccel, verticalAcceleration)) {
+            if (detectPeak(accelerationModule, verticalAcceleration, accelerationRatio)) {
+                if (isLocalMaximum(lastAccelerationModule, nextAccelerationModule, accelerationModule)) {
                     currentLyingSamples = 0;
                     samplesAfterPeakDetect = 0;
                     isLyingDetected = false;
@@ -98,7 +94,7 @@ public class Algorithm {
                 }
             }
 
-            if (detectLying(totalAcceleration, verticalAcceleration)) {
+            if (detectLying(accelerationModule, verticalAcceleration)) {
                 currentLyingSamples++;
             } else {
                 currentLyingSamples = 0;
@@ -112,51 +108,12 @@ public class Algorithm {
             if (currentLyingSamples >= LYING_SAMPLES_COUNT) {
                 isLyingDetected = true;
             }
-            samplesProcessed++;
             debug(i + 1, isFallPeakDetected, isLyingDetected, samplesAfterPeakDetect, currentLyingSamples);
             if (isFallPeakDetected && isLyingDetected) {
                 init();
                 return true;
             }
-
-
-/*
-            if (detectPeak(totalAcceleration, verticalAcceleration, accelerationRatio)) {
-                currentLyingSamples = 0;
-                samplesAfterPeakDetect = 0;
-                isLyingDetected = false;
-                isFallPeakDetected = true;
-            }
-            if (detectLying(totalAcceleration, verticalAcceleration)) {
-                currentLyingSamples++;
-                if (currentLyingSamples > LYING_SAMPLES_COUNT) {
-                    isLyingDetected = true;
-                    currentLyingSamples = 0;
-                }
-            } else {
-                currentLyingSamples = 0;
-                isLyingDetected = false;
-            }
-
-            if (isFallPeakDetected) {
-                samplesAfterPeakDetect++;
-            }
-            if (samplesAfterPeakDetect > MAX_SAMPLES_AFTER_PEAK_DETECT) {
-                isFallPeakDetected = false;
-                samplesAfterPeakDetect = 0;
-            }
-
-            debug(i + 1, isFallPeakDetected, isLyingDetected, samplesAfterPeakDetect, currentLyingSamples);
-            if (isFallPeakDetected && isLyingDetected) {
-                return true;
-            }*/
-
-            /* zeby odróżnic czynosci ynamicznych tj skakanie a upadek można posiłkować się
-            odczytami z zyroskopu, wartością modulo z żyroskopu, przy upadku zawsze jest >= 300 (st/sec).
-             */
         }
-       /* float execTime = (System.nanoTime() - startTime)/1000000; // in ms
-        Log.e("time",String.valueOf(execTime));*/
         return false;
     }
 
@@ -166,9 +123,8 @@ public class Algorithm {
         isLyingDetected = false;
         currentLyingSamples = 0;
         samplesAfterPeakDetect = 0;
-        samplesProcessed = 0;
-        lastVerticalAccel = 0;
-        nextVerticalAccel = 0;
+        lastAccelerationModule = 0;
+        nextAccelerationModule = 0;
 
         Log.e("Algorithm", "Reset to init state");
     }
@@ -182,7 +138,7 @@ public class Algorithm {
     }
 
     private static boolean detectPeak(double totalAcceleration, double verticalAcceleration, double accelerationRatio) {
-        return verticalAcceleration >= VERTICAL_ACC_THRESHOLD && totalAcceleration>=TOTAL_ACC_THRESHOLD && accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW;
+        return verticalAcceleration >= VERTICAL_ACC_THRESHOLD && totalAcceleration >= TOTAL_ACC_THRESHOLD && accelerationRatio >= ACC_COMPARISION_THRESHOLD_LOW;
     }
 
     private static boolean detectLying(double totalAcceleration, double verticalAcceleration) {
@@ -196,8 +152,8 @@ public class Algorithm {
                 + "\tcurrentlyLyingSamples:\t" + String.valueOf(currentLyingSamples));
     }
 
-    private static boolean isLocalMaximum(double lastVerticalAccel, double nextVerticalAccel, double currVerticalAccel) {
-        return lastVerticalAccel < currVerticalAccel && nextVerticalAccel < currVerticalAccel;
+    private static boolean isLocalMaximum(double lastAccelerationModule, double nextAccelerationModule, double currentAccelerationModule) {
+        return lastAccelerationModule < currentAccelerationModule && nextAccelerationModule < currentAccelerationModule;
 
     }
 }
