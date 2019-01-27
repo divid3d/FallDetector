@@ -89,16 +89,6 @@
     <PreferenceCategory android:title="Testing">
 
         <PreferenceScreen
-            android:dependency="sms_request_enable"
-            android:summary="Click here to test SMS help request"
-            android:title="SMS help request" />
-
-        <PreferenceScreen
-            android:dependency="email_request_enable"
-            android:summary="Click here to test e-mail help request"
-            android:title="E-mail help request" />
-
-        <PreferenceScreen
             android:summary="Click here to test fall detection event"
             android:title="Fall detection event">
 
@@ -118,8 +108,5 @@
             <intent android:action="example.action.ACTION_SIGNAL_RECORDER_ACTIVITY" />
         </PreferenceScreen>
 
-        <PreferenceScreen
-            android:summary="Click here to test localization"
-            android:title="Localization" />
     </PreferenceCategory>
 </PreferenceScreen>

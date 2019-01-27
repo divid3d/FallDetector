@@ -1,10 +1,11 @@
 package com.example.divided.falldetector;
 
 import android.app.ActivityManager;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -19,20 +20,15 @@ import com.example.divided.falldetector.model.SensorDataPack;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class SignalService extends Service implements com.example.divided.falldetector.model.SensorManager.OnSensorDataListener {
 
-    private final double SAMPLING_PERIOD = 20.0; // przy 25 Hz najstabilniej i SENSOR_DELAY_GAME
     private final int BUFFER_SIZE = 400;
     private final int NOTIFICATION_ID = 1;
-    private final String CHANEL_ID = "001";
     NotificationManager notificationManager;
     com.example.divided.falldetector.model.SensorManager sensorManager;
     private boolean isForegroundStarted = false;
-    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(BUFFER_SIZE); // ok 2s, czyli 2x4x25 = 200
+    private CircularFifoQueue<SensorData> buffer = new CircularFifoQueue<>(BUFFER_SIZE);
 
     public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -72,6 +68,7 @@ public class SignalService extends Service implements com.example.divided.fallde
         super.onCreate();
         Log.e("SignalService", "onCreate()");
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        double SAMPLING_PERIOD = 20.0;
         sensorManager = new com.example.divided.falldetector.model.SensorManager(this, SAMPLING_PERIOD);
         sensorManager.setOnSensorDataListener(this);
         isForegroundStarted = true;
@@ -111,19 +108,38 @@ public class SignalService extends Service implements com.example.divided.fallde
     }
 
     public void showNotification() {
-        PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-        Notification notification = new NotificationCompat.Builder(this, CHANEL_ID)
+
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        int notificationId = 1;
+        String channelId = "channel-01";
+        String channelName = "Channel Name";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(
+                    channelId, channelName, importance);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, channelId)
                 .setTicker("Fall detector")
                 .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_my_launcher_icon))
                 .setSmallIcon(R.drawable.ic_11015_falling_man)
                 .setContentTitle("Fall detection is now running")
                 .setContentText("Click to open application")
-                .setContentIntent(pi)
                 .setOngoing(true)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .build();
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
-        startForeground(NOTIFICATION_ID, notification);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntent(new Intent(this, MainActivity.class));
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+                0,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        notificationManager.notify(notificationId, mBuilder.build());
     }
 
     @Override
@@ -131,8 +147,7 @@ public class SignalService extends Service implements com.example.divided.fallde
         buffer.add(sensorData);
         if (buffer.isAtFullCapacity()) {
             final SensorDataPack sensorDataPack = new SensorDataPack(buffer);
-            List<Float> chuj = new ArrayList<>();
-            if (Algorithm.fallDetectionAlgorithm(sensorDataPack,chuj)) {
+            if (Algorithm.fallDetectionAlgorithm(sensorDataPack)) {
                 stopSelf();
                 startAlarmActivity();
             }

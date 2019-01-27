@@ -23,5 +23,4 @@ public class SensorData<T> {
         SENSOR_MAGNETIC_FIELD,
         SENSOR_ROTATION_VECTOR
     }
-
 }

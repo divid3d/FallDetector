@@ -33,9 +33,9 @@ public class SignalAdapter extends RecyclerView.Adapter<SignalAdapter.MyViewHold
         holder.id.setText(String.valueOf(position + 1));
         holder.testResult.setText("Test result:\t" + signal.getTestResult());
 
-        if(signal.getTestResult().equals("true")){
+        if (signal.getTestResult().equals("true")) {
             holder.icon.setImageResource(R.drawable.ic_11015_falling_man);
-        }else{
+        } else {
             holder.icon.setImageResource(R.color.transparent);
         }
     }

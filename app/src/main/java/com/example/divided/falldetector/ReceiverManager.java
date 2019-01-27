@@ -21,12 +21,11 @@ public class ReceiverManager {
         context.registerReceiver(receiver, intentFilter);
     }
 
-    public boolean isReceiverRegistered(BroadcastReceiver receiver) {
-        boolean registered = receivers.contains(receiver);
-        return registered;
+    private boolean isReceiverRegistered(BroadcastReceiver receiver) {
+        return receivers.contains(receiver);
     }
 
-    public void unregisterReceiver(BroadcastReceiver receiver) {
+    private void unregisterReceiver(BroadcastReceiver receiver) {
         if (isReceiverRegistered(receiver)) {
             receivers.remove(receiver);
             context.unregisterReceiver(receiver);

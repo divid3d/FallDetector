@@ -1,5 +1,9 @@
 package com.example.divided.falldetector.model;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+
 public class Data {
 
     private final float mValues[];
@@ -17,4 +21,16 @@ public class Data {
     public long getTimestamp() {
         return mTimestamp;
     }
+
+    SensorEventListener listener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
 }

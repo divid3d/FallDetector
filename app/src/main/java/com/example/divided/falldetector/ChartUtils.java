@@ -26,9 +26,9 @@ public class ChartUtils {
         lineChart.setDrawGridBackground(false);
         if (offsetDisable) {
             lineChart.setViewPortOffsets(0, 0, 0, 0);
-        } else{
+        } else {
             lineChart.getAxisLeft().setTextColor(Color.WHITE);
-            lineChart.getAxisLeft().setTypeface(ResourcesCompat.getFont(context,R.font.product_sans_regular));
+            lineChart.getAxisLeft().setTypeface(ResourcesCompat.getFont(context, R.font.product_sans_regular));
         }
         lineChart.getXAxis().setEnabled(false);
         lineChart.getAxisLeft().setEnabled(enableYAxis);
@@ -39,7 +39,7 @@ public class ChartUtils {
         lineChart.getAxisRight().setEnabled(false);
     }
 
-    private static  LineDataSet createSet(@ColorInt int color, boolean setFill) {
+    private static LineDataSet createSet(@ColorInt int color, boolean setFill) {
         LineDataSet set = new LineDataSet(null, null);
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -75,6 +75,8 @@ public class ChartUtils {
             final int dataCount = lineChart.getData().getEntryCount();
             if (dataCount >= MAX_CHART_POINTS && maxChartPointsSet) {
                 set.removeFirst();
+                data.notifyDataChanged();
+                lineChart.notifyDataSetChanged();
             }
             if (set.getEntryCount() == 0) {
                 data.addEntry(new Entry(0, point.getValue()), 0);
@@ -86,7 +88,7 @@ public class ChartUtils {
         }
     }
 
-    public static  void setupData(LineChart lineChart) {
+    public static void setupData(LineChart lineChart) {
         LineData data = new LineData();
         lineChart.setData(data);
     }

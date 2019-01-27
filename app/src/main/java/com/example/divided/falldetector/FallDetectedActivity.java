@@ -31,6 +31,7 @@ import com.google.android.gms.location.LocationServices;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -49,6 +50,7 @@ public class FallDetectedActivity extends AppCompatActivity {
     boolean isTimerRunning = false;
     Location currentLocation;
     UserSettings userSettings;
+    List<Address> addresses = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +75,6 @@ public class FallDetectedActivity extends AppCompatActivity {
         mCommunicates = findViewById(R.id.ts_communicate);
         mButtonCancel = findViewById(R.id.btn_cancel);
         mButtonBack = findViewById(R.id.btn_back);
-
         mButtonBack.setOnClickListener(v -> finish());
 
         MaterialRippleLayout.on(mButtonCancel)
@@ -91,13 +92,10 @@ public class FallDetectedActivity extends AppCompatActivity {
         client.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
                 currentLocation = location;
-                getAddress(currentLocation.getLatitude(),currentLocation.getLongitude());
-                Toast.makeText(getApplicationContext(), location.toString(), Toast.LENGTH_SHORT).show();
+                addresses = getAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
             }
         });
-
-        SoundHelper soundHelper = new SoundHelper(this,R.raw.alarm_mp3,true);
-
+        SoundHelper soundHelper = new SoundHelper(this, R.raw.alarm_mp3, true);
         mButtonCancel.setOnClickListener(v -> {
             mButtonCancel.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_tap_anim));
             if (countDownTimer != null && isTimerRunning) {
@@ -114,15 +112,14 @@ public class FallDetectedActivity extends AppCompatActivity {
             }
         });
         mProgressBar = findViewById(R.id.progress_bar);
-
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (userSettings.isVibrationEnabled() && vibrator != null) {
             vibrateWithRepeat(vibrator);
         }
-
         if (userSettings.isAlarmSoundEnabled()) {
             soundHelper.startSound();
         }
+
         countDownTimer = new CountDownTimer(userSettings.getAlarmDuration() * 1000, 1) {
 
             @Override
@@ -144,8 +141,6 @@ public class FallDetectedActivity extends AppCompatActivity {
                     soundHelper.release();
                 }
 
-
-
                 Animation cancelButtonAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
                 cancelButtonAnim.setAnimationListener(new Animation.AnimationListener() {
 
@@ -162,11 +157,11 @@ public class FallDetectedActivity extends AppCompatActivity {
                         Animation fadeOutAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
                         fadeOutAnim.setFillAfter(true);
                         mTextViewTimeRemaining.startAnimation(fadeOutAnim);
-                        if(userSettings.isSmsEnabled()) {
+                        if (userSettings.isSmsEnabled()) {
                             sendSMS(new String[]{userSettings.getPhoneNumber()});
                         }
 
-                        if(userSettings.isEmailEnabled()) {
+                        if (userSettings.isEmailEnabled()) {
                             sendEmail(new String[]{userSettings.getEmailAddress()});
                         }
                         mCommunicates.setText("Help request has been send");
@@ -215,21 +210,26 @@ public class FallDetectedActivity extends AppCompatActivity {
     private void sendSMS(String[] phoneNumbers) {
         if (currentLocation != null) {
             for (String phoneNumber : phoneNumbers) {
-                final String message = "Fall alert!\n" + "My location:\n" + "Lat: " + currentLocation.getLatitude()
-                        + "\n" + "Long: " + currentLocation.getLongitude() + "\n\n"
-                        + "https://maps.google.com/?q=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-                SmsManager sms = SmsManager.getDefault();
-                sms.sendTextMessage(phoneNumber, null, message, null, null);
+                if (!addresses.isEmpty()) {
+                    final String message = "Fall alert!\n"
+                            + userSettings.getUsername() + "'s fall detected!\n"
+                            + addresses.get(0).getAddressLine(0) + "\n\n"
+                            + "https://maps.google.com/?q=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
+
+                    SmsManager sms = SmsManager.getDefault();
+                    sms.sendTextMessage(phoneNumber, null, message, null, null);
+                }
             }
         }
     }
 
     private void sendEmail(String[] emailAdresses) {
         if (currentLocation != null) {
-            final String username = "robo6666666@gmail.com";
-            final String password = "asiamakota333";
-            final String body = "Fall alert!\n" + "My location:\n" + "Lat: " + currentLocation.getLatitude()
-                    + "\n" + "Long: " + currentLocation.getLongitude() + "\n\n"
+            final String username = userSettings.getEmailLogin();
+            final String password = userSettings.getEmailPassword();
+            final String body = "Fall alert!\n"
+                    + userSettings.getUsername() + "'s fall detected!\n"
+                    + addresses.get(0).getAddressLine(0) + "\n\n"
                     + "https://maps.google.com/?q=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
 
             GMailSender sender = new GMailSender(username, password);
@@ -256,25 +256,14 @@ public class FallDetectedActivity extends AppCompatActivity {
         mButtonCancel.callOnClick();
     }
 
-    public void getAddress(double lat, double lng) {
+    public List<Address> getAddress(double lat, double lng) {
         Geocoder geocoder = new Geocoder(getApplicationContext(), getResources().getConfiguration().locale);
+        List<Address> addresses = new ArrayList<>();
         try {
-            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
-            Address obj = addresses.get(0);
-            String add = obj.getAddressLine(0);
-            add = add + "\n" + obj.getCountryName();
-            add = add + "\n" + obj.getCountryCode();
-            add = add + "\n" + obj.getAdminArea();
-            add = add + "\n" + obj.getPostalCode();
-            add = add + "\n" + obj.getSubAdminArea();
-            add = add + "\n" + obj.getLocality();
-            add = add + "\n" + obj.getSubThoroughfare();
-
-            Log.e("IGA", "Address" + add);
-
-
+            addresses = geocoder.getFromLocation(lat, lng, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return addresses;
     }
 }

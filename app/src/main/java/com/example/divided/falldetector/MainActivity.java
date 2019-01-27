@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.Entry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     final private BroadcastReceiver mGpsSwitchStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(LocationManager.PROVIDERS_CHANGED_ACTION)) {
-                if (!Utils.isGPSEnabled(context)) {
+            if (Objects.equals(intent.getAction(), LocationManager.PROVIDERS_CHANGED_ACTION)) {
+                if (Utils.isGPSEnabled(context)) {
                     if (SignalService.isServiceRunning(context, SignalService.class)) {
                         stopService(new Intent(context, SignalService.class));
                     }
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             final float modVal = (float) intent.getDoubleExtra("accMod", 0);
             ChartPoint chartPoint = new ChartPoint(modVal, 0);
-            ChartUtils.addEntry(chartPoint, chart, Color.WHITE,true,true);
+            ChartUtils.addEntry(chartPoint, chart, Color.WHITE, true, true);
         }
     };
 
@@ -117,17 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
         mStartStopServiceButton = findViewById(R.id.btn_start_service);
         timeCounter = findViewById(R.id.time_counter);
-        //timeCounter.setTypeFace(ResourcesCompat.getFont(this,R.font.product_sans_regular));
 
         chart = findViewById(R.id.chart);
 
-        ChartUtils.setupChart(this,chart,false,true);
+        ChartUtils.setupChart(this, chart, false, true);
         ChartUtils.setupData(chart);
 
-        /*LocalBroadcastManager.getInstance(this).registerReceiver(mAccelerationReceiver, new IntentFilter("current_acceleration_data"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStopped, new IntentFilter("service_stopped"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mServiceStarted, new IntentFilter("service_started"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mGpsSwitchStateReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));*/
 
         MaterialRippleLayout.on(mStartStopServiceButton)
                 .rippleColor(Color.WHITE)
@@ -138,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         permissionsManager.requestPermissions();
-        if (!Utils.isGPSEnabled(this)) {
+        if (Utils.isGPSEnabled(this)) {
             showGPSDisabledDialog();
         }
 
@@ -187,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
@@ -216,11 +211,6 @@ public class MainActivity extends AppCompatActivity {
             if (SignalService.isServiceRunning(this, SignalService.class)) {
                 stopService(new Intent(this, SignalService.class));
             }
-            /*
-            unregisterReceiver(mGpsSwitchStateReceiver);
-            unregisterReceiver(mAccelerationReceiver);
-            unregisterReceiver(mServiceStarted);
-            unregisterReceiver(mServiceStopped);*/
             if (receiverManager != null) {
                 receiverManager.unregisterAllReceivers();
             }
@@ -231,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("GPS Disabled");
         builder.setIcon(R.drawable.ic_person_pin_circle_black_24dp);
-        builder.setMessage("Gps is disabled, in order to use the application properly you need to enable GPS of your device");
+        builder.setMessage("Gps is disabled, in order to use this application properly you need to enable GPS on your device");
         builder.setPositiveButton("Enable GPS", (dialog, which) ->
                 startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), GPS_ENABLE_REQUEST)).setNegativeButton("No, Just Exit", (dialog, which) ->
                 finish()).setCancelable(false);
@@ -242,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == GPS_ENABLE_REQUEST) {
-            if (!Utils.isGPSEnabled(this)) {
+            if (Utils.isGPSEnabled(this)) {
                 showGPSDisabledDialog();
             }
         } else {

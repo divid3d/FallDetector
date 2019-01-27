@@ -79,8 +79,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_person_pin_circle_black_24dp" />
-                            <entry key="sourceFile" value="C:\Users\Divided\Desktop\11015-falling-man.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="ic_baseline_done_all_24px" />
+                            <entry key="sourceFile" value="C:\Users\Divided\Downloads\baseline-done_all-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>

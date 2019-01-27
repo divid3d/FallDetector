@@ -60,7 +60,7 @@
         android:id="@+id/btn_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/timer_layout"
+        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:background="@drawable/button_cancel_background"
         android:fontFamily="@font/product_sans_regular"

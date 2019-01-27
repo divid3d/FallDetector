@@ -60,11 +60,11 @@ public class Utils {
     public static boolean isGPSEnabled(Context mContext) {
         LocationManager lm = (LocationManager)
                 mContext.getSystemService(Context.LOCATION_SERVICE);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        return !(lm != null && lm.isProviderEnabled(LocationManager.GPS_PROVIDER));
     }
 
     public static String getCurrentDate() {
-        return new SimpleDateFormat("dd-MMMM HH:mm:ss").format(new Date());
+        return new SimpleDateFormat("dd MMMM HH:mm:ss").format(new Date());
     }
 
     public static boolean saveAsCsv(Context context, SensorDataPack dataPack, String filename) {
@@ -102,10 +102,10 @@ public class Utils {
                         , String.format("%f", dataPack.getMagneticFieldData().get(i).getZ()) //polemagnetyczne Z
                         , String.format("%f", dataPack.getMagneticFieldData().get(i).getModule())    //pole magnetyczne Mod
                         , String.format("%d", dataPack.getRotationVectorData().get(i).getTimestamp() - rotationVectorTimeStampOffset)
-                        , String.format("%f", dataPack.getRotationVectorData().get(i).getX()) //rotacja x
-                        , String.format("%f", dataPack.getRotationVectorData().get(i).getY()) //rotacja y
-                        , String.format("%f", dataPack.getRotationVectorData().get(i).getZ()) //rotacja Z
-                        , String.format("%f", verticalAccelerationData.get(i)) // składowa normalna przyspieszenia (vertykalna)
+                        , String.format("%f", dataPack.getRotationVectorData().get(i).getX()) //wektor rotacji x
+                        , String.format("%f", dataPack.getRotationVectorData().get(i).getY()) //wektor rotacji y
+                        , String.format("%f", dataPack.getRotationVectorData().get(i).getZ()) //wektor rotacji z
+                        , String.format("%f", verticalAccelerationData.get(i)) // składowa werykalna przyspieszenia
                 });
             }
             writer.writeAll(data);
@@ -146,5 +146,13 @@ public class Utils {
         return Math.abs(aX * Math.sin(thetaZ) + aY * Math.sin(thetaY) - aZ * Math.cos(thetaY) * Math.cos(thetaZ));
     }
 
-
+    public static int findMinValue(int... args) {
+        int minimum = args[0];
+        for (int i = 0; i < args.length - 2; i++) {
+            if (Math.min(args[i], args[i + 1]) < minimum) {
+                minimum = Math.min(args[i], args[i + 1]);
+            }
+        }
+        return minimum;
+    }
 }

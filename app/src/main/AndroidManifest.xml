@@ -43,6 +43,7 @@
             android:theme="@style/MainAppTheme">
             <intent-filter>
                 <action android:name="example.action.ACTION_FALL_DETECTED_ACTIVITY" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -60,6 +61,7 @@
             android:theme="@style/MainAppTheme">
             <intent-filter>
                 <action android:name="example.action.ACTION_TEST_ACTIVITY" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -71,10 +73,14 @@
             android:theme="@style/MainAppTheme">
             <intent-filter>
                 <action android:name="example.action.ACTION_SIGNAL_RECORDER_ACTIVITY" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
+        <activity
+            android:name=".codeformat"
+            android:label="@string/title_activity_codeformat"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
