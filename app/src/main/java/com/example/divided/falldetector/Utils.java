@@ -71,7 +71,7 @@ public class Utils {
 
         List<Double> verticalAccelerationData = calculateVerticalAccelerationData(dataPack);
 
-        File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "Acceleration signals");
+        File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "Signals");
 
         if (!directory.exists()) {
             directory.mkdir();

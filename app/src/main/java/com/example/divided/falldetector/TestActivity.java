@@ -124,7 +124,7 @@ public class TestActivity extends AppCompatActivity {
 
     private List<TestSignal> loadSignalsSignatures() {
         List<TestSignal> signals = new ArrayList<>();
-        File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "Acceleration signals");
+        File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "Signals");
         Log.e("directory exists", String.valueOf(directory.exists()));
         for (File f : directory.listFiles()) {
             if (f.isFile())
